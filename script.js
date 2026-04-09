@@ -65,6 +65,10 @@ function handleMove(newWord) {
     renderStack();
     message.innerText = "Accepted!";
     message.style.color = "#538d4e"; // Wordle green
+
+    // Save to the phone's memory
+localStorage.setItem('lastPlayedDate', new Date().toDateString());
+localStorage.setItem('savedHistory', JSON.stringify(history));
 }
 
 function renderStack() {
