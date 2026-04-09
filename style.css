@@ -1,6 +1,6 @@
 /* 1. GENERAL STYLES */
 body {
-    background-color: #121213; /* Dark theme like Wordle */
+    background-color: #121213;
     color: #ffffff;
     font-family: 'Roboto', sans-serif;
     display: flex;
@@ -8,7 +8,7 @@ body {
     align-items: flex-start;
     min-height: 100vh;
     margin: 0;
-    padding-top: 20px;
+    padding: 20px 10px;
 }
 
 #game-container {
@@ -18,7 +18,6 @@ body {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 10px;
 }
 
 header h1 {
@@ -46,8 +45,6 @@ header h1 {
     font-size: 1.5rem;
     font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    /* Pop-in animation */
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -70,8 +67,58 @@ header h1 {
     outline: none;
 }
 
-#word-input:focus {
-    border-color: #818384;
+#message {
+    font-size: 0.9rem;
+    min-height: 20px;
+    margin-bottom: 10px;
 }
 
-#message
+/* 4. KEYBOARD STYLES (The Fix) */
+#keyboard {
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column; /* Stack rows vertically */
+    gap: 8px;
+    align-items: center;
+    user-select: none;
+}
+
+.keyboard-row {
+    display: flex; /* Force keys in this row to be horizontal */
+    flex-direction: row; 
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    touch-action: manipulation;
+}
+
+.key {
+    background-color: #818384;
+    color: white;
+    border-radius: 4px;
+    height: 58px;
+    width: 38px; /* Fixed width prevents the 'long line' effect */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.1s, transform 0.1s;
+}
+
+.key:active {
+    background-color: #565758;
+    transform: scale(0.9);
+}
+
+.key.wide {
+    width: 65px; /* For Enter and Backspace */
+    font-size: 0.75rem;
+}
+
+/* 5. BUTTONS */
+#share-btn {
+    background-color: #538d4e;
+    color: white;
