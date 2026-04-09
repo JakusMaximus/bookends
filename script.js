@@ -35,20 +35,14 @@
         if (isGameOver) return;
         selectedSide = side;
         pendingLetter = ""; 
-        message.innerText = "Pick a letter for the " + side;
-        message.style.color = "#1a1a1b";
+        message.innerText = "Select a letter for the " + side;
         refreshUI();
     };
 
     function handleKeyInput(char) {
-        if (isGameOver) return;
-        if (!selectedSide) {
-            message.innerText = "Tap a [+] first";
-            message.style.color = "#ef4444";
-            return;
-        }
+        if (isGameOver || !selectedSide) return;
         pendingLetter = char;
-        message.innerText = "Submit this word?";
+        message.innerText = "Ready to submit?";
         refreshUI();
     }
 
@@ -62,7 +56,6 @@
             selectedSide = null;
             pendingLetter = "";
             message.innerText = "Accepted!";
-            message.style.color = "#10b981";
             refreshUI();
         } else {
             triggerGameOver(guess);
@@ -72,9 +65,7 @@
     function refreshUI() {
         const lastWord = history[history.length - 1];
         
-        // Reversed: history now goes from newest (at top) to oldest (at bottom)
-        // or history.slice(0, -1).reverse() for oldest-to-newest downward.
-        // Let's go newest-to-oldest downward so the 'ladder' stays consistent.
+        // Show previous words in order below
         stack.innerHTML = history.slice(0, -1).reverse()
             .map(w => `<div class="word-card">${w}</div>`).join('');
 
@@ -93,10 +84,8 @@
 
     function triggerGameOver(guess) {
         isGameOver = true;
-        message.innerText = `"${guess}" isn't a word.`;
-        message.style.color = "#ef4444";
-
-        // Convert number to ordinal (1st, 2nd, 3rd...)
+        message.innerText = `"${guess}" isn't in our dictionary.`;
+        
         const n = history.length;
         const s = ["th", "st", "nd", "rd"];
         const v = n % 100;
@@ -106,8 +95,7 @@
         scoreDiv.className = "final-score-text";
         scoreDiv.innerText = `You reached the ${n}${suffix} word.`;
         message.after(scoreDiv);
-
-        if (shareBtn) shareBtn.style.display = "flex";
+        shareBtn.style.display = "flex";
     }
 
     function createKeyboard() {
@@ -144,7 +132,7 @@
 
     if (shareBtn) {
         shareBtn.onclick = () => {
-            const text = `📖 Bookends Daily 📖\nI reached the word ${history.length}!\n${window.location.href}`;
+            const text = `📖 Bookends Daily 📖\nI reached the ${history.length} word!\n${window.location.href}`;
             navigator.clipboard.writeText(text);
             alert("Score copied!");
         };
