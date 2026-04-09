@@ -1,21 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Word Grower</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookends | Daily Word Game</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
+
     <div id="game-container">
-        <h1>WORD GROWER</h1>
+        <header>
+            <h1>BOOKENDS</h1>
+            <div id="date-display"></div>
+        </header>
+
         <div id="word-stack">
             </div>
-        <div id="input-area">
-            <input type="text" id="word-input" placeholder="Add a letter..." autocomplete="off">
+
+        <div id="input-section">
+            <input type="text" id="word-input" placeholder="Add a letter to start or end..." autofocus autocomplete="off">
             <p id="message"></p>
         </div>
+
+        <div id="controls">
+            <button id="share-btn" style="display:none;">Share Result 📤</button>
+            <p id="hint">Rules: Add one letter to the start or end of the word to make a new valid word.</p>
+        </div>
     </div>
+
     <script src="starters.js"></script>
     <script src="script.js"></script>
+
 </body>
 </html>
