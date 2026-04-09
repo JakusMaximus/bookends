@@ -1,5 +1,4 @@
 (function() {
-    // 1. STATE
     let dictionary = [];
     let history = [];
     let isGameOver = false;
@@ -8,6 +7,7 @@
     const stack = document.getElementById('word-stack');
     const message = document.getElementById('message');
     const shareBtn = document.getElementById('share-btn');
+    const keyboard = document.getElementById('keyboard');
 
     function init() {
         let wordList = ["CAT"]; 
@@ -18,6 +18,7 @@
         history = [wordList[dayOfYear % wordList.length].toUpperCase()];
         draw();
         loadDictionary();
+        createKeyboard(); // Initialize the visual keys
     }
 
     function loadDictionary() {
@@ -25,54 +26,112 @@
             .then(res => res.text())
             .then(text => {
                 dictionary = text.toUpperCase().split('\n').map(w => w.trim());
-                if (input) input.placeholder = "Grow the word...";
+                if (input) input.placeholder = "Type or use keyboard...";
             });
     }
+
+    // --- KEYBOARD LOGIC START ---
+    function createKeyboard() {
+        const rows = [
+            "QWERTYUIOP",
+            "ASDFGHJKL",
+            "ZXCVBNM"
+        ];
+
+        rows.forEach((row, i) => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'keyboard-row';
+
+            // Add ENTER key to the middle or last row
+            if (i === 2) {
+                const enterKey = createKey("ENTER", "wide");
+                enterKey.onclick = () => submitGuess();
+                rowDiv.appendChild(enterKey);
+            }
+
+            row.split('').forEach(char => {
+                const key = createKey(char);
+                key.onclick = () => {
+                    if (!isGameOver) input.value += char;
+                };
+                rowDiv.appendChild(key);
+            });
+
+            // Add BACKSPACE key to the last row
+            if (i === 2) {
+                const backKey = createKey("⌫", "wide");
+                backKey.onclick = () => {
+                    if (!isGameOver) input.value = input.value.slice(0, -1);
+                };
+                rowDiv.appendChild(backKey);
+            }
+
+            keyboard.appendChild(rowDiv);
+        });
+    }
+
+    function createKey(label, className = "") {
+        const btn = document.createElement('div');
+        btn.className = `key ${className}`;
+        btn.innerText = label;
+        return btn;
+    }
+
+    function submitGuess() {
+        if (isGameOver) return;
+        const guess = input.value.toUpperCase().trim();
+        processGuess(guess);
+        input.value = "";
+    }
+    // --- KEYBOARD LOGIC END ---
 
     function draw() {
         if (!stack) return;
         stack.innerHTML = history.slice().reverse().map((w, i) => {
-            // Added a 'new-card' class for a CSS animation later
-            const isNew = i === 0 && history.length > 1 ? 'new-card' : '';
-            return `<div class="word-card ${isNew}">${w}</div>`;
+            const op = i === 0 ? 1 : 0.5;
+            return `<div class="word-card" style="opacity: ${op}">${w}</div>`;
         }).join('');
     }
 
     if (input) {
         input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !isGameOver) {
-                const guess = input.value.toUpperCase().trim();
-                const last = history[history.length - 1];
-
-                if (guess.length === last.length + 1 && (guess.startsWith(last) || guess.endsWith(last)) && dictionary.includes(guess)) {
-                    history.push(guess);
-                    draw();
-                    message.innerText = "Accepted!";
-                    message.style.color = "#55ff55";
-                    input.value = "";
-                } else {
-                    handleFailure(guess, last);
-                }
-            }
+            if (e.key === 'Enter') submitGuess();
         });
     }
 
-    function handleFailure(word, last) {
+    function processGuess(newWord) {
+        const lastWord = history[history.length - 1];
+        const isOneLonger = newWord.length === lastWord.length + 1;
+        const hasAnchor = newWord.endsWith(lastWord) || newWord.startsWith(lastWord);
+        const inDictionary = dictionary.includes(newWord);
+
+        if (isOneLonger && hasAnchor && inDictionary) {
+            history.push(newWord);
+            draw();
+            message.innerText = "Accepted!";
+            message.style.color = "#55ff55";
+        } else {
+            handleFailure(newWord, isOneLonger, hasAnchor, inDictionary);
+        }
+    }
+
+    function handleFailure(word, len, anc, dict) {
         isGameOver = true;
         input.disabled = true;
         input.placeholder = "GAME OVER";
         
-        // Show the score
-        const scoreUI = document.createElement('div');
-        scoreUI.className = "final-score-container";
-        scoreUI.innerHTML = `
-            <div style="font-size: 1rem; color: #aaa;">FINAL CHAIN</div>
-            <div style="font-size: 4rem; font-weight: bold; color: #ffd700;">${history.length}</div>
-        `;
-        message.after(scoreUI);
+        let reason = "";
+        if (!len) reason = "Must be 1 letter longer.";
+        else if (!anc) reason = "Must contain the previous word.";
+        else if (!dict) reason = `"${word}" is not in our dictionary.`;
 
-        // STREAK LOGIC
-        updateStreak();
+        message.innerText = reason;
+        message.style.color = "#ff5555";
+
+        const scoreUI = document.createElement('div');
+        scoreUI.style = "font-size: 2.5rem; font-weight: bold; margin: 20px 0; color: #ffd700;";
+        scoreUI.innerText = `Final Chain: ${history.length}`;
+        message.after(scoreUI);
 
         if (shareBtn) {
             shareBtn.style.display = "block";
@@ -80,31 +139,11 @@
         }
     }
 
-    function updateStreak() {
-        let streak = parseInt(localStorage.getItem('bookends_streak') || 0);
-        const lastPlayed = localStorage.getItem('bookends_last_date');
-        const today = new Date().toDateString();
-        const yesterday = new Date(Date.now() - 86400000).toDateString();
-
-        if (lastPlayed === yesterday) {
-            streak++;
-        } else if (lastPlayed !== today) {
-            streak = 1;
-        }
-
-        localStorage.setItem('bookends_streak', streak);
-        localStorage.setItem('bookends_last_date', today);
-        
-        const streakMsg = document.createElement('p');
-        streakMsg.innerText = `🔥 Day Streak: ${streak}`;
-        message.after(streakMsg);
-    }
-
     function setupShare(score) {
         shareBtn.onclick = () => {
-            const text = `Bookends Daily 📈\nChain: ${score}\n${"🟩".repeat(score)}\nPlay here: ${window.location.href}`;
+            const text = `Bookends Daily 📈\nChain: ${score} words\n${"🟩".repeat(score)}\n${window.location.href}`;
             navigator.clipboard.writeText(text);
-            alert("Copied!");
+            alert("Score copied!");
         };
     }
 
