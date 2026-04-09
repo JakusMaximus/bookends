@@ -1,13 +1,14 @@
-/* RESET */
+/* 1. GENERAL STYLES */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
     background-color: #121213;
-    color: white;
+    color: #ffffff;
     font-family: 'Roboto', sans-serif;
     display: flex;
     justify-content: center;
-    padding: 20px;
+    min-height: 100vh;
+    padding: 20px 10px;
 }
 
 #game-container {
@@ -16,72 +17,127 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
 }
 
-/* THE KEYBOARD FIX */
+header h1 {
+    font-size: 2.2rem;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #3a3a3c;
+    width: 100%;
+    padding-bottom: 10px;
+}
+
+/* 2. WORD STACK */
+#word-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.word-card {
+    background-color: #272729;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 1.2rem;
+    color: #818384;
+    text-transform: uppercase;
+    animation: popIn 0.3s ease;
+}
+
+/* 3. INTERACTIVE GUESS AREA */
+#guess-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 30px 0;
+}
+
+#active-word-display {
+    display: flex;
+    gap: 5px;
+}
+
+.letter-tile {
+    width: 42px;
+    height: 48px;
+    border: 2px solid #3a3a3c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: #121213;
+}
+
+.slot {
+    width: 42px;
+    height: 48px;
+    border: 2px dashed #565758;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #565758;
+    transition: all 0.2s;
+}
+
+.slot.selected {
+    border: 2px solid #538d4e;
+    background: rgba(83, 141, 78, 0.15);
+    color: #538d4e;
+}
+
+.slot.filled {
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    border-style: solid;
+}
+
+#message {
+    font-size: 0.9rem;
+    min-height: 24px;
+    margin-bottom: 15px;
+}
+
+/* 4. KEYBOARD */
 #keyboard {
     width: 100%;
     display: flex;
-    flex-direction: column; /* Rows stack vertically */
+    flex-direction: column;
     gap: 8px;
-    margin-top: 30px;
+    user-select: none;
+    margin-top: auto;
 }
 
 .keyboard-row {
-    display: flex !important; /* Force horizontal */
-    flex-direction: row !important;
+    display: flex;
     justify-content: center;
-    gap: 4px;
-    width: 100%;
+    gap: 5px;
 }
 
 .key {
     background-color: #818384;
     color: white;
     height: 58px;
-    flex: 1; /* This makes keys grow to fill the row */
-    max-width: 40px; 
-    min-width: 25px;
+    flex: 1;
+    max-width: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
     border-radius: 4px;
     cursor: pointer;
-    user-select: none;
-    flex-shrink: 0; /* Prevents keys from collapsing into a line */
+    touch-action: manipulation;
 }
 
 .key.wide {
-    flex: 1.5; /* Enter/Back are wider */
-    max-width: 80px;
-    font-size: 0.8rem;
-}
-
-/* WORD STACK */
-#word-stack {
-    margin-bottom: 20px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.word-card {
-    background: #3a3a3c;
-    padding: 15px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 1.5rem;
-    border-radius: 4px;
-}
-
-#word-input {
-    width: 100%;
-    padding: 12px;
-    background: transparent;
-    border: 2px solid #3a3a3c;
-    color: white;
-    text-align: center;
-    margin-bottom: 10px;
+    max-width: 75px;
+    font-size: 0.75rem;
+    background-color: #565758;
 }
