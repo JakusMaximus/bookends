@@ -1,4 +1,4 @@
-/* 1. GENERAL STYLES */
+/* 1. RESET & BASE */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -17,7 +17,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
 }
 
 header h1 {
@@ -26,10 +25,11 @@ header h1 {
     margin-bottom: 20px;
     border-bottom: 1px solid #3a3a3c;
     width: 100%;
+    text-align: center;
     padding-bottom: 10px;
 }
 
-/* 2. WORD STACK */
+/* 2. WORD STACK (History) */
 #word-stack {
     display: flex;
     flex-direction: column;
@@ -42,67 +42,73 @@ header h1 {
     background-color: #272729;
     padding: 10px;
     border-radius: 4px;
-    font-size: 1.2rem;
+    text-align: center;
+    font-size: 1.1rem;
     color: #818384;
     text-transform: uppercase;
-    animation: popIn 0.3s ease;
 }
 
-/* 3. INTERACTIVE GUESS AREA */
+/* 3. INTERACTIVE GUESS ROW (The Fix) */
 #guess-row {
-    display: flex;
+    display: flex; /* Forces items to stay in a row */
+    flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 8px; /* Space between + and tiles */
     margin: 30px 0;
+    width: 100%;
 }
 
 #active-word-display {
-    display: flex;
-    gap: 5px;
+    display: flex; /* Forces letters to stay in a row */
+    flex-direction: row;
+    gap: 4px;
 }
 
 .letter-tile {
-    width: 42px;
-    height: 48px;
+    width: 40px;
+    height: 50px;
     border: 2px solid #3a3a3c;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: bold;
-    background: #121213;
+    background-color: #121213;
+    text-transform: uppercase;
 }
 
 .slot {
-    width: 42px;
-    height: 48px;
+    width: 40px;
+    height: 50px;
     border: 2px dashed #565758;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
     cursor: pointer;
-    color: #565758;
+    color: #818384;
     transition: all 0.2s;
+    background: transparent;
 }
 
 .slot.selected {
     border: 2px solid #538d4e;
-    background: rgba(83, 141, 78, 0.15);
     color: #538d4e;
+    background: rgba(83, 141, 78, 0.1);
 }
 
 .slot.filled {
-    border: 2px solid #ffffff;
-    color: #ffffff;
     border-style: solid;
+    border-color: #ffffff;
+    color: #ffffff;
 }
 
 #message {
     font-size: 0.9rem;
-    min-height: 24px;
-    margin-bottom: 15px;
+    height: 20px;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
 /* 4. KEYBOARD */
@@ -111,7 +117,6 @@ header h1 {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    user-select: none;
     margin-top: auto;
 }
 
@@ -119,6 +124,7 @@ header h1 {
     display: flex;
     justify-content: center;
     gap: 5px;
+    width: 100%;
 }
 
 .key {
@@ -126,18 +132,41 @@ header h1 {
     color: white;
     height: 58px;
     flex: 1;
-    max-width: 40px;
+    max-width: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
     border-radius: 4px;
     cursor: pointer;
-    touch-action: manipulation;
+    font-size: 1rem;
 }
 
 .key.wide {
-    max-width: 75px;
-    font-size: 0.75rem;
+    max-width: 70px;
+    font-size: 0.8rem;
     background-color: #565758;
+}
+
+.key:active {
+    background-color: #3a3a3c;
+}
+
+/* 5. GAME OVER */
+.final-score {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #ffd700;
+    margin: 10px 0;
+}
+
+#share-btn {
+    background-color: #538d4e;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 20px;
 }
