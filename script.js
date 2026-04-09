@@ -1,14 +1,35 @@
 let dictionary = [];
 let history = ["CAT"]; // We will make this daily later!
 
-// 1. Fetch the big Scrabble dictionary
+let dictionary = [];
+let history = []; 
+
+// 1. The "Daily Picker" Logic
+function getDailyWord() {
+    const now = new Date();
+    // This creates a unique number for every day of the year
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff = now - start;
+    const oneDay = 1000 * 60 * 60 * 24;
+    const dayOfYear = Math.floor(diff / oneDay);
+
+    // Pick a word from the DAILY_STARTERS list using the day number
+    // The % makes sure that if you have 365 words, it loops back to the start next year
+    const wordIndex = dayOfYear % DAILY_STARTERS.length;
+    return DAILY_STARTERS[wordIndex];
+}
+
+// 2. Fetch dictionary and Start Game
 fetch('dictionary.json')
   .then(response => response.json())
   .then(data => {
-      // Scrabble JSONs usually look like { "WORD": "definition" }
-      // We just need the words (the "keys")
       dictionary = Object.keys(data); 
-      console.log("Dictionary Loaded!");
+      
+      // Initialize the game with today's word
+      const todaysWord = getDailyWord();
+      history = [todaysWord];
+      
+      console.log("Game Ready!");
       renderStack();
   });
 
