@@ -1,122 +1,111 @@
 (function() {
-    // 1. STATE & ELEMENTS
+    // 1. STATE
     let dictionary = [];
     let history = [];
+    let gameActive = true;
 
     const input = document.getElementById('word-input');
     const stack = document.getElementById('word-stack');
     const message = document.getElementById('message');
     const shareBtn = document.getElementById('share-btn');
 
-    // 2. START THE GAME IMMEDIATELY
     function initGame() {
-        // Pick the word first so the user sees something right away
         const dailyWord = getDailyWord();
         history = [dailyWord];
         renderStack();
-        
-        // Load the dictionary in the background
         loadDictionary();
     }
 
-    // 3. DAILY WORD LOGIC
     function getDailyWord() {
         let wordList = ["CAT"]; 
-        if (typeof DAILY_STARTERS !== 'undefined' && DAILY_STARTERS.length > 0) {
-            wordList = DAILY_STARTERS;
-        }
-
+        if (typeof DAILY_STARTERS !== 'undefined') wordList = DAILY_STARTERS;
         const now = new Date();
         const start = new Date(now.getFullYear(), 0, 0);
         const diff = now - start;
-        const oneDay = 1000 * 60 * 60 * 24;
-        const dayOfYear = Math.floor(diff / oneDay);
-
-        const wordIndex = dayOfYear % wordList.length;
-        return wordList[wordIndex].toUpperCase();
+        const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+        return wordList[dayOfYear % wordList.length].toUpperCase();
     }
 
-    // 4. DICTIONARY LOAD (Background)
     function loadDictionary() {
         fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt')
-            .then(response => response.text())
+            .then(res => res.text())
             .then(text => {
                 dictionary = text.toUpperCase().split('\n').map(w => w.trim());
-                console.log("Dictionary Ready");
-                if (input) input.placeholder = "Add a letter...";
-            })
-            .catch(err => {
-                console.error("Dictionary failed", err);
-                showError("Dictionary error. Refresh page.");
+                if (input) input.placeholder = "Grow the word...";
             });
     }
 
     function renderStack() {
         if (!stack) return;
-        stack.innerHTML = history.slice().reverse().map((w) => {
-            return `<div class="word-card">${w}</div>`;
+        stack.innerHTML = history.slice().reverse().map((w, i) => {
+            return `<div class="word-card" style="opacity: ${1 - (i * 0.1)}">${w}</div>`;
         }).join('');
     }
 
-    // 5. INPUT HANDLING
     if (input) {
         input.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                // If dictionary hasn't loaded yet, wait
-                if (dictionary.length === 0) {
-                    showError("Still loading word list... wait a sec.");
-                    return;
-                }
+            if (e.key === 'Enter' && gameActive) {
                 const newWord = input.value.toUpperCase().trim();
-                handleMove(newWord);
+                processGuess(newWord);
                 input.value = '';
             }
         });
     }
 
-    function handleMove(newWord) {
+    function processGuess(newWord) {
         const lastWord = history[history.length - 1];
 
-        if (newWord.length !== lastWord.length + 1) {
-            return showError("Add exactly 1 letter!");
-        }
+        // LOGIC CHECK: Is it 1 letter longer and does it contain the anchor?
+        const isOneLonger = newWord.length === lastWord.length + 1;
+        const hasAnchor = newWord.endsWith(lastWord) || newWord.startsWith(lastWord);
+        const inDictionary = dictionary.includes(newWord);
 
-        const growsFromStart = newWord.endsWith(lastWord);
-        const growsFromEnd = newWord.startsWith(lastWord);
-
-        if (!growsFromStart && !growsFromEnd) {
-            return showError(`Must include "${lastWord}"`);
-        }
-
-        if (!dictionary.includes(newWord)) {
-            return showError("Not a valid word!");
-        }
-
-        history.push(newWord);
-        renderStack();
-        message.innerText = "Accepted!";
-        message.style.color = "#55ff55";
-
-        if (history.length >= 5 && shareBtn) {
-            shareBtn.style.display = 'block';
-            setupShare();
+        if (isOneLonger && hasAnchor && inDictionary) {
+            // SUCCESS
+            history.push(newWord);
+            renderStack();
+            message.innerText = "Nice! Keep going...";
+            message.style.color = "#55ff55";
+        } else {
+            // GAME OVER
+            endGame(newWord, isOneLonger, hasAnchor, inDictionary);
         }
     }
 
-    function setupShare() {
+    function endGame(word, len, anc, dict) {
+        gameActive = false;
+        input.disabled = true;
+        input.placeholder = "Game Over";
+
+        let reason = "Game Over! ";
+        if (!len) reason += "Must add exactly 1 letter.";
+        else if (!anc) reason += "Must add to the start or end.";
+        else if (!dict) reason += `"${word}" isn't in our dictionary.`;
+
+        message.innerText = reason;
+        message.style.color = "#ff5555";
+
+        // Show Final Score
+        const finalScore = history.length;
+        const scoreDisplay = document.createElement('div');
+        scoreDisplay.innerHTML = `<h2 style="margin-top:20px;">Final Chain: ${finalScore}</h2>`;
+        message.parentNode.insertBefore(scoreDisplay, message.nextSibling);
+
+        // Show Share Button
+        if (shareBtn) {
+            shareBtn.style.display = 'block';
+            setupShare(finalScore);
+        }
+    }
+
+    function setupShare(score) {
         shareBtn.onclick = () => {
-            const chart = history.map(() => "🟩").join("");
-            const text = `Bookends Daily 📈\nI reached ${history.length} letters!\n${chart}\n${window.location.href}`;
+            const boxes = "🟩".repeat(score);
+            const text = `Bookends Daily 📈\nMy chain: ${score} words\n${boxes}\n${window.location.href}`;
             navigator.clipboard.writeText(text);
-            alert("Score copied!");
+            alert("Score copied to clipboard! Share it with friends.");
         };
     }
 
-    function showError(txt) {
-        message.innerText = txt;
-        message.style.color = "#ff5555";
-    }
-
-    // ACTIVATE!
     initGame();
 })();
