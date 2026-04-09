@@ -1,9 +1,9 @@
-/* 1. RESET & BASE (Light Mode) */
+/* 1. RESET & BASE (Force Light Mode) */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    background-color: #ffffff;
-    color: #1a1a1b;
+    background-color: #ffffff !important; /* Force white background */
+    color: #1a1a1b !important;           /* Force black text */
     font-family: 'Roboto', sans-serif;
     display: flex;
     justify-content: center;
@@ -27,9 +27,10 @@ header h1 {
     width: 100%;
     text-align: center;
     padding-bottom: 15px;
+    color: #1a1a1b;
 }
 
-/* 2. WORD STACK (Faded history) */
+/* 2. WORD STACK */
 #word-stack {
     display: flex;
     flex-direction: column;
@@ -95,8 +96,8 @@ header h1 {
 }
 
 .slot.selected {
-    border: 2px solid #000000;
-    color: #000000;
+    border: 2px solid #1a1a1b;
+    color: #1a1a1b;
     background: #fffbeb;
 }
 
@@ -110,12 +111,13 @@ header h1 {
 #message {
     font-size: 0.95rem;
     font-weight: 500;
-    height: 24px;
+    min-height: 24px;
     margin-bottom: 20px;
     text-align: center;
+    color: #1a1a1b;
 }
 
-/* 4. KEYBOARD (Grey/White style) */
+/* 4. KEYBOARD */
 #keyboard {
     width: 100%;
     display: flex;
@@ -159,25 +161,23 @@ header h1 {
 
 /* 5. MODERN SHARE BUTTON & SCORE */
 #share-btn {
-    display: none; /* Controlled by JS */
+    display: none;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    background: linear-gradient(135deg, #1a1a1b 0%, #4b5563 100%);
-    color: white;
-    border: none;
-    padding: 14px 28px;
-    border-radius: 50px;
+    background: #ffffff;
+    color: #1a1a1b;
+    border: 2px solid #1a1a1b;
+    padding: 12px 24px;
+    border-radius: 8px;
     font-weight: bold;
     font-size: 1rem;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     margin-bottom: 20px;
-    transition: transform 0.2s;
+    transition: all 0.2s;
 }
 
-#share-btn:active {
-    transform: scale(0.96);
+#share-btn:hover {
+    background: #f3f4f6;
 }
 
 .final-score {
