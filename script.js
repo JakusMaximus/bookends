@@ -35,7 +35,7 @@
         if (isGameOver) return;
         selectedSide = side;
         pendingLetter = ""; 
-        message.innerText = "Select a letter for the " + side;
+        message.innerText = "Pick a letter for the " + side;
         message.style.color = "#1a1a1b";
         refreshUI();
     };
@@ -48,7 +48,7 @@
             return;
         }
         pendingLetter = char;
-        message.innerText = "Ready to submit?";
+        message.innerText = "Submit this word?";
         refreshUI();
     }
 
@@ -71,8 +71,13 @@
 
     function refreshUI() {
         const lastWord = history[history.length - 1];
+        
+        // Reversed: history now goes from newest (at top) to oldest (at bottom)
+        // or history.slice(0, -1).reverse() for oldest-to-newest downward.
+        // Let's go newest-to-oldest downward so the 'ladder' stays consistent.
         stack.innerHTML = history.slice(0, -1).reverse()
             .map(w => `<div class="word-card">${w}</div>`).join('');
+
         activeDisplay.innerHTML = lastWord.split('')
             .map(l => `<div class="letter-tile">${l}</div>`).join('');
 
@@ -88,12 +93,20 @@
 
     function triggerGameOver(guess) {
         isGameOver = true;
-        message.innerText = `"${guess}" isn't in our dictionary.`;
+        message.innerText = `"${guess}" isn't a word.`;
         message.style.color = "#ef4444";
+
+        // Convert number to ordinal (1st, 2nd, 3rd...)
+        const n = history.length;
+        const s = ["th", "st", "nd", "rd"];
+        const v = n % 100;
+        const suffix = (s[(v - 20) % 10] || s[v] || s[0]);
+        
         const scoreDiv = document.createElement('div');
-        scoreDiv.className = "final-score";
-        scoreDiv.innerText = history.length;
+        scoreDiv.className = "final-score-text";
+        scoreDiv.innerText = `You reached the ${n}${suffix} word.`;
         message.after(scoreDiv);
+
         if (shareBtn) shareBtn.style.display = "flex";
     }
 
@@ -131,7 +144,7 @@
 
     if (shareBtn) {
         shareBtn.onclick = () => {
-            const text = `📖 Bookends Daily 📖\nChain: ${history.length}\n${window.location.href}`;
+            const text = `📖 Bookends Daily 📖\nI reached the word ${history.length}!\n${window.location.href}`;
             navigator.clipboard.writeText(text);
             alert("Score copied!");
         };
