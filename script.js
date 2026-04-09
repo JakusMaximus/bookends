@@ -39,20 +39,20 @@
         if (isGameOver) return;
         selectedSide = side;
         pendingLetter = ""; 
-        message.innerText = "Pick a letter for the " + side;
-        message.style.color = "#ffffff";
+        message.innerText = "Add a letter to the " + side;
+        message.style.color = "#1a1a1b";
         refreshUI();
     };
 
     function handleKeyInput(char) {
         if (isGameOver) return;
         if (!selectedSide) {
-            message.innerText = "Select a [+] slot first!";
-            message.style.color = "#ffaa00";
+            message.innerText = "Tap a [+] first";
+            message.style.color = "#ef4444";
             return;
         }
         pendingLetter = char;
-        message.innerText = "Ready to submit?";
+        message.innerText = "Submit this word?";
         refreshUI();
     }
 
@@ -67,7 +67,7 @@
             selectedSide = null;
             pendingLetter = "";
             message.innerText = "Accepted!";
-            message.style.color = "#55ff55";
+            message.style.color = "#10b981";
             refreshUI();
         } else {
             triggerGameOver(guess);
@@ -85,7 +85,7 @@
         activeDisplay.innerHTML = lastWord.split('')
             .map(l => `<div class="letter-tile">${l}</div>`).join('');
 
-        // Update [+] Slots
+        // Update Slots
         const pre = document.getElementById('slot-prefix');
         const suf = document.getElementById('slot-suffix');
 
@@ -100,15 +100,15 @@
 
     function triggerGameOver(guess) {
         isGameOver = true;
-        message.innerText = `"${guess}" is not a word.`;
-        message.style.color = "#ff5555";
+        message.innerText = `"${guess}" isn't in our dictionary.`;
+        message.style.color = "#ef4444";
 
         const scoreDiv = document.createElement('div');
         scoreDiv.className = "final-score";
         scoreDiv.innerText = history.length;
         message.after(scoreDiv);
 
-        if (shareBtn) shareBtn.style.display = "block";
+        if (shareBtn) shareBtn.style.display = "flex";
     }
 
     function createKeyboard() {
@@ -149,9 +149,10 @@
 
     if (shareBtn) {
         shareBtn.onclick = () => {
-            const text = `Bookends Daily 📈\nChain: ${history.length}\n${window.location.href}`;
+            const boxes = "⬛".repeat(history.length);
+            const text = `📖 Bookends Daily 📖\nChain: ${history.length}\n${boxes}\n${window.location.href}`;
             navigator.clipboard.writeText(text);
-            alert("Copied!");
+            alert("Score copied!");
         };
     }
 
