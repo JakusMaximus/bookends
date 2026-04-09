@@ -13,16 +13,12 @@
 
     function init() {
         createKeyboard();
-        
         let wordList = ["CAT"]; 
         if (typeof DAILY_STARTERS !== 'undefined') wordList = DAILY_STARTERS;
-        
         const now = new Date();
         const start = new Date(now.getFullYear(), 0, 0);
         const dayOfYear = Math.floor((now - start) / 86400000);
-        
         history = [wordList[dayOfYear % wordList.length].toUpperCase()];
-        
         refreshUI();
         loadDictionary();
     }
@@ -39,7 +35,7 @@
         if (isGameOver) return;
         selectedSide = side;
         pendingLetter = ""; 
-        message.innerText = "Add a letter to the " + side;
+        message.innerText = "Select a letter for the " + side;
         message.style.color = "#1a1a1b";
         refreshUI();
     };
@@ -52,13 +48,12 @@
             return;
         }
         pendingLetter = char;
-        message.innerText = "Submit this word?";
+        message.innerText = "Ready to submit?";
         refreshUI();
     }
 
     function submitMove() {
         if (isGameOver || !selectedSide || !pendingLetter) return;
-
         const lastWord = history[history.length - 1];
         const guess = selectedSide === 'prefix' ? pendingLetter + lastWord : lastWord + pendingLetter;
 
@@ -76,23 +71,16 @@
 
     function refreshUI() {
         const lastWord = history[history.length - 1];
-
-        // Past words
         stack.innerHTML = history.slice(0, -1).reverse()
             .map(w => `<div class="word-card">${w}</div>`).join('');
-
-        // Active Word Tiles
         activeDisplay.innerHTML = lastWord.split('')
             .map(l => `<div class="letter-tile">${l}</div>`).join('');
 
-        // Update Slots
         const pre = document.getElementById('slot-prefix');
         const suf = document.getElementById('slot-suffix');
-
         if (pre && suf) {
             pre.innerText = (selectedSide === 'prefix' && pendingLetter) ? pendingLetter : "+";
             suf.innerText = (selectedSide === 'suffix' && pendingLetter) ? pendingLetter : "+";
-
             pre.className = `slot ${selectedSide === 'prefix' ? 'selected' : ''} ${pendingLetter && selectedSide === 'prefix' ? 'filled' : ''}`;
             suf.className = `slot ${selectedSide === 'suffix' ? 'selected' : ''} ${pendingLetter && selectedSide === 'suffix' ? 'filled' : ''}`;
         }
@@ -102,35 +90,29 @@
         isGameOver = true;
         message.innerText = `"${guess}" isn't in our dictionary.`;
         message.style.color = "#ef4444";
-
         const scoreDiv = document.createElement('div');
         scoreDiv.className = "final-score";
         scoreDiv.innerText = history.length;
         message.after(scoreDiv);
-
         if (shareBtn) shareBtn.style.display = "flex";
     }
 
     function createKeyboard() {
         const rows = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
         keyboard.innerHTML = '';
-
         rows.forEach((row, i) => {
             const rowDiv = document.createElement('div');
             rowDiv.className = 'keyboard-row';
-
             if (i === 2) {
                 const sub = createKey("SUBMIT", "wide");
                 sub.onclick = submitMove;
                 rowDiv.appendChild(sub);
             }
-
             row.split('').forEach(char => {
                 const k = createKey(char);
                 k.onclick = () => handleKeyInput(char);
                 rowDiv.appendChild(k);
             });
-
             if (i === 2) {
                 const back = createKey("⌫", "wide");
                 back.onclick = () => { pendingLetter = ""; refreshUI(); };
@@ -149,12 +131,10 @@
 
     if (shareBtn) {
         shareBtn.onclick = () => {
-            const boxes = "⬛".repeat(history.length);
-            const text = `📖 Bookends Daily 📖\nChain: ${history.length}\n${boxes}\n${window.location.href}`;
+            const text = `📖 Bookends Daily 📖\nChain: ${history.length}\n${window.location.href}`;
             navigator.clipboard.writeText(text);
             alert("Score copied!");
         };
     }
-
     init();
 })();
