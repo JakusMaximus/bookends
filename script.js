@@ -31,6 +31,17 @@ fetch('dictionary.json')
       
       console.log("Game Ready!");
       renderStack();
+
+      const savedDate = localStorage.getItem('lastPlayedDate');
+const todayDate = new Date().toDateString();
+
+if (savedDate === todayDate) {
+    const savedHistory = localStorage.getItem('savedHistory');
+    if (savedHistory) history = JSON.parse(savedHistory);
+} else {
+    // It's a new day! Clear the old save
+    history = [getDailyWord()];
+}
   });
 
 const input = document.getElementById('word-input');
