@@ -1,95 +1,107 @@
 (function() {
-    // 1. STATE
+    // 1. GAME STATE
     let dictionary = [];
     let history = [];
-    let gameActive = true;
+    let isGameOver = false;
 
     const input = document.getElementById('word-input');
     const stack = document.getElementById('word-stack');
     const message = document.getElementById('message');
     const shareBtn = document.getElementById('share-btn');
 
-    function initGame() {
-        const dailyWord = getDailyWord();
-        history = [dailyWord];
-        renderStack();
-        loadDictionary();
-    }
-
-    function getDailyWord() {
+    // 2. INITIALIZE
+    function init() {
+        // Setup the starter word
         let wordList = ["CAT"]; 
         if (typeof DAILY_STARTERS !== 'undefined') wordList = DAILY_STARTERS;
         const now = new Date();
         const start = new Date(now.getFullYear(), 0, 0);
-        const diff = now - start;
-        const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
-        return wordList[dayOfYear % wordList.length].toUpperCase();
-    }
-
-    function loadDictionary() {
+        const dayOfYear = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+        
+        history = [wordList[dayOfYear % wordList.length].toUpperCase()];
+        draw();
+        
+        // Background load dictionary
         fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt')
             .then(res => res.text())
             .then(text => {
                 dictionary = text.toUpperCase().split('\n').map(w => w.trim());
-                if (input) input.placeholder = "Grow the word...";
+                if (input) input.placeholder = "Type your next word...";
+                console.log("Dictionary Loaded");
             });
     }
 
-    function renderStack() {
+    // 3. RENDER THE STACK
+    function draw() {
         if (!stack) return;
         stack.innerHTML = history.slice().reverse().map((w, i) => {
-            // Newest word is bright, older words fade out
-            const op = i === 0 ? 1 : 0.6 - (i * 0.05);
+            const op = i === 0 ? 1 : 0.5;
             return `<div class="word-card" style="opacity: ${op}">${w}</div>`;
         }).join('');
     }
 
+    // 4. MAIN INPUT LOGIC
     if (input) {
         input.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter' && gameActive) {
-                const newWord = input.value.toUpperCase().trim();
-                processGuess(newWord);
-                input.value = '';
+            if (e.key === 'Enter') {
+                if (isGameOver) return; // Stop if game ended
+
+                const guess = input.value.toUpperCase().trim();
+                const last = history[history.length - 1];
+
+                // Check Rules
+                const validLen = (guess.length === last.length + 1);
+                const validAnc = (guess.startsWith(last) || guess.endsWith(last));
+                const inDict = dictionary.includes(guess);
+
+                if (validLen && validAnc && inDict) {
+                    // CONTINUE GAME
+                    history.push(guess);
+                    draw();
+                    message.innerText = "Accepted!";
+                    message.style.color = "#55ff55";
+                    input.value = "";
+                } else {
+                    // TERMINATE GAME
+                    handleFailure(guess, validLen, validAnc, inDict);
+                }
             }
         });
     }
 
-    function processGuess(newWord) {
-        const lastWord = history[history.length - 1];
+    // 5. THE END OF THE LINE
+    function handleFailure(word, len, anc, dict) {
+        isGameOver = true;
+        input.disabled = true;
+        input.value = "";
+        input.placeholder = "GAME OVER";
 
-        // The 3 Rules of the Game
-        const isOneLonger = newWord.length === lastWord.length + 1;
-        const hasAnchor = newWord.endsWith(lastWord) || newWord.startsWith(lastWord);
-        const inDictionary = dictionary.includes(newWord);
+        // Why did they lose?
+        let failReason = "";
+        if (!len) failReason = "Length error: Must be 1 letter longer.";
+        else if (!anc) failReason = "Anchor error: The previous word must be inside your new word.";
+        else if (!dict) failReason = `"${word}" is not a valid English word.`;
 
-        // STRIKE SYSTEM: If any of these are false, the game ends immediately
-        if (isOneLonger && hasAnchor && inDictionary) {
-            history.push(newWord);
-            renderStack();
-            message.innerText = "Nice! +1 Word";
-            message.style.color = "#55ff55";
-        } else {
-            // Determine the specific reason for failure
-            let reason = "";
-            if (!isOneLonger) reason = "Must add exactly 1 letter.";
-            else if (!hasAnchor) reason = `Must contain "${lastWord}".`;
-            else if (!inDictionary) reason = `"${newWord}" is not in our dictionary.`;
-            
-            endGame(reason);
+        message.innerText = failReason;
+        message.style.color = "#ff5555";
+
+        // Show Big Score
+        const scoreUI = document.createElement('div');
+        scoreUI.style = "font-size: 2.5rem; font-weight: bold; margin: 20px 0; color: #ffd700;";
+        scoreUI.innerText = `Final Chain: ${history.length}`;
+        message.after(scoreUI);
+
+        // Setup Share
+        if (shareBtn) {
+            shareBtn.style.display = "block";
+            shareBtn.style.margin = "20px auto";
+            shareBtn.onclick = () => {
+                const text = `Bookends Daily 📈\nChain: ${history.length} words\n${"🟩".repeat(history.length)}\n${window.location.href}`;
+                navigator.clipboard.writeText(text);
+                alert("Score copied!");
+            };
         }
     }
 
-    function endGame(reason) {
-        gameActive = false;
-        input.disabled = true;
-        input.placeholder = "GAME OVER";
-        
-        message.innerText = reason;
-        message.style.color = "#ff5555";
-
-        // Create a visual "Final Score" badge
-        const scoreBox = document.createElement('div');
-        scoreBox.style.marginTop = "20px";
-        scoreBox.innerHTML = `
-            <div style="font-size: 0.9rem; color: #888;">FINAL CHAIN</div>
-            <div style="font-size: 3rem; font-weight:
+    init();
+})();
