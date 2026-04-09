@@ -38,7 +38,9 @@
     function renderStack() {
         if (!stack) return;
         stack.innerHTML = history.slice().reverse().map((w, i) => {
-            return `<div class="word-card" style="opacity: ${1 - (i * 0.1)}">${w}</div>`;
+            // Newest word is bright, older words fade out
+            const op = i === 0 ? 1 : 0.6 - (i * 0.05);
+            return `<div class="word-card" style="opacity: ${op}">${w}</div>`;
         }).join('');
     }
 
@@ -55,57 +57,39 @@
     function processGuess(newWord) {
         const lastWord = history[history.length - 1];
 
-        // LOGIC CHECK: Is it 1 letter longer and does it contain the anchor?
+        // The 3 Rules of the Game
         const isOneLonger = newWord.length === lastWord.length + 1;
         const hasAnchor = newWord.endsWith(lastWord) || newWord.startsWith(lastWord);
         const inDictionary = dictionary.includes(newWord);
 
+        // STRIKE SYSTEM: If any of these are false, the game ends immediately
         if (isOneLonger && hasAnchor && inDictionary) {
-            // SUCCESS
             history.push(newWord);
             renderStack();
-            message.innerText = "Nice! Keep going...";
+            message.innerText = "Nice! +1 Word";
             message.style.color = "#55ff55";
         } else {
-            // GAME OVER
-            endGame(newWord, isOneLonger, hasAnchor, inDictionary);
+            // Determine the specific reason for failure
+            let reason = "";
+            if (!isOneLonger) reason = "Must add exactly 1 letter.";
+            else if (!hasAnchor) reason = `Must contain "${lastWord}".`;
+            else if (!inDictionary) reason = `"${newWord}" is not in our dictionary.`;
+            
+            endGame(reason);
         }
     }
 
-    function endGame(word, len, anc, dict) {
+    function endGame(reason) {
         gameActive = false;
         input.disabled = true;
-        input.placeholder = "Game Over";
-
-        let reason = "Game Over! ";
-        if (!len) reason += "Must add exactly 1 letter.";
-        else if (!anc) reason += "Must add to the start or end.";
-        else if (!dict) reason += `"${word}" isn't in our dictionary.`;
-
+        input.placeholder = "GAME OVER";
+        
         message.innerText = reason;
         message.style.color = "#ff5555";
 
-        // Show Final Score
-        const finalScore = history.length;
-        const scoreDisplay = document.createElement('div');
-        scoreDisplay.innerHTML = `<h2 style="margin-top:20px;">Final Chain: ${finalScore}</h2>`;
-        message.parentNode.insertBefore(scoreDisplay, message.nextSibling);
-
-        // Show Share Button
-        if (shareBtn) {
-            shareBtn.style.display = 'block';
-            setupShare(finalScore);
-        }
-    }
-
-    function setupShare(score) {
-        shareBtn.onclick = () => {
-            const boxes = "🟩".repeat(score);
-            const text = `Bookends Daily 📈\nMy chain: ${score} words\n${boxes}\n${window.location.href}`;
-            navigator.clipboard.writeText(text);
-            alert("Score copied to clipboard! Share it with friends.");
-        };
-    }
-
-    initGame();
-})();
+        // Create a visual "Final Score" badge
+        const scoreBox = document.createElement('div');
+        scoreBox.style.marginTop = "20px";
+        scoreBox.innerHTML = `
+            <div style="font-size: 0.9rem; color: #888;">FINAL CHAIN</div>
+            <div style="font-size: 3rem; font-weight:
