@@ -1,14 +1,13 @@
-/* 1. GENERAL STYLES */
+/* RESET */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
     background-color: #121213;
-    color: #ffffff;
+    color: white;
     font-family: 'Roboto', sans-serif;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    margin: 0;
-    padding: 20px 10px;
+    padding: 20px;
 }
 
 #game-container {
@@ -17,108 +16,72 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
 }
 
-header h1 {
-    font-size: 2.5rem;
-    letter-spacing: 2px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #3a3a3c;
-    width: 100%;
-    padding-bottom: 10px;
-}
-
-/* 2. WORD STACK & CARDS */
-#word-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 20px;
-    width: 100%;
-}
-
-.word-card {
-    background-color: #3a3a3c;
-    padding: 12px;
-    border-radius: 4px;
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@keyframes popIn {
-    0% { transform: scale(0.8); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-/* 3. INPUT AREA */
-#word-input {
-    background: transparent;
-    border: 2px solid #3a3a3c;
-    color: white;
-    font-size: 1.2rem;
-    padding: 10px;
-    border-radius: 4px;
-    width: 80%;
-    text-align: center;
-    margin-bottom: 10px;
-    outline: none;
-}
-
-#message {
-    font-size: 0.9rem;
-    min-height: 20px;
-    margin-bottom: 10px;
-}
-
-/* 4. KEYBOARD STYLES (The Fix) */
+/* THE KEYBOARD FIX */
 #keyboard {
     width: 100%;
-    margin-top: 20px;
     display: flex;
-    flex-direction: column; /* Stack rows vertically */
+    flex-direction: column; /* Rows stack vertically */
     gap: 8px;
-    align-items: center;
-    user-select: none;
+    margin-top: 30px;
 }
 
 .keyboard-row {
-    display: flex; /* Force keys in this row to be horizontal */
-    flex-direction: row; 
+    display: flex !important; /* Force horizontal */
+    flex-direction: row !important;
     justify-content: center;
-    gap: 6px;
+    gap: 4px;
     width: 100%;
-    touch-action: manipulation;
 }
 
 .key {
     background-color: #818384;
     color: white;
-    border-radius: 4px;
     height: 58px;
-    width: 38px; /* Fixed width prevents the 'long line' effect */
+    flex: 1; /* This makes keys grow to fill the row */
+    max-width: 40px; 
+    min-width: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.1s, transform 0.1s;
-}
-
-.key:active {
-    background-color: #565758;
-    transform: scale(0.9);
+    user-select: none;
+    flex-shrink: 0; /* Prevents keys from collapsing into a line */
 }
 
 .key.wide {
-    width: 65px; /* For Enter and Backspace */
-    font-size: 0.75rem;
+    flex: 1.5; /* Enter/Back are wider */
+    max-width: 80px;
+    font-size: 0.8rem;
 }
 
-/* 5. BUTTONS */
-#share-btn {
-    background-color: #538d4e;
+/* WORD STACK */
+#word-stack {
+    margin-bottom: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.word-card {
+    background: #3a3a3c;
+    padding: 15px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    border-radius: 4px;
+}
+
+#word-input {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 2px solid #3a3a3c;
     color: white;
+    text-align: center;
+    margin-bottom: 10px;
+}
