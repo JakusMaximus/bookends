@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookends | Daily Word Challenge</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=3">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -16,9 +16,13 @@
 
         <div id="word-stack"></div>
 
-        <div id="input-section">
-            <input type="text" id="word-input" placeholder="Loading dictionary..." autocomplete="off" autofocus>
-            <p id="message">Add a letter to the start or end to grow the word.</p>
+        <div id="interactive-area">
+            <div id="guess-row">
+                <div class="slot" id="slot-prefix" onclick="selectSlot('prefix')">+</div>
+                <div id="active-word-display"></div>
+                <div class="slot" id="slot-suffix" onclick="selectSlot('suffix')">+</div>
+            </div>
+            <p id="message">Select a [+] to add a letter</p>
         </div>
 
         <div id="controls">
@@ -30,6 +34,5 @@
 
     <script src="starters.js"></script>
     <script src="script.js"></script>
-
 </body>
 </html>
