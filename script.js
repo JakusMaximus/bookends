@@ -1,6 +1,7 @@
 (function() {
     let dictionary = [];
     let history = [];
+    let moveHistory = []; // Tracks if letter was 'prefix' or 'suffix'
     let isGameOver = false;
     let selectedSide = null; 
     let pendingLetter = "";
@@ -18,6 +19,7 @@
         const now = new Date();
         const start = new Date(now.getFullYear(), 0, 0);
         const dayOfYear = Math.floor((now - start) / 86400000);
+        
         history = [wordList[dayOfYear % wordList.length].toUpperCase()];
         refreshUI();
         loadDictionary();
@@ -53,22 +55,21 @@
 
         if (dictionary.includes(guess)) {
             history.push(guess);
+            moveHistory.push({side: selectedSide, success: true});
             selectedSide = null;
             pendingLetter = "";
             message.innerText = "Accepted!";
             refreshUI();
         } else {
+            moveHistory.push({side: selectedSide, success: false});
             triggerGameOver(guess);
         }
     }
 
     function refreshUI() {
         const lastWord = history[history.length - 1];
-        
-        // Show previous words in order below
         stack.innerHTML = history.slice(0, -1).reverse()
             .map(w => `<div class="word-card">${w}</div>`).join('');
-
         activeDisplay.innerHTML = lastWord.split('')
             .map(l => `<div class="letter-tile">${l}</div>`).join('');
 
@@ -96,6 +97,25 @@
         scoreDiv.innerText = `You reached the ${n}${suffix} word.`;
         message.after(scoreDiv);
         shareBtn.style.display = "flex";
+    }
+
+    function generateShareGrid() {
+        let grid = "";
+        let currentLen = history[0].length;
+        
+        // Start word row
+        grid += "⬜".repeat(currentLen) + "\n";
+        
+        moveHistory.forEach(move => {
+            const block = move.success ? "🟦" : "🟥";
+            if (move.side === 'prefix') {
+                grid += block + "🟩".repeat(currentLen) + "\n";
+            } else {
+                grid += "🟩".repeat(currentLen) + block + "\n";
+            }
+            if (move.success) currentLen++;
+        });
+        return grid;
     }
 
     function createKeyboard() {
@@ -132,9 +152,10 @@
 
     if (shareBtn) {
         shareBtn.onclick = () => {
-            const text = `📖 Bookends Daily 📖\nI reached the ${history.length} word!\n${window.location.href}`;
+            const grid = generateShareGrid();
+            const text = `📖 Bookends Daily 📖\nI reached the ${history.length} word!\n\n${grid}\n${window.location.href}`;
             navigator.clipboard.writeText(text);
-            alert("Score copied!");
+            alert("Visual score copied!");
         };
     }
     init();
