@@ -1,9 +1,9 @@
-/* 1. RESET & BASE (Force Light Mode) */
+/* 1. RESET & BASE */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    background-color: #ffffff !important; /* Force white background */
-    color: #1a1a1b !important;           /* Force black text */
+    background-color: #ffffff !important;
+    color: #1a1a1b !important;
     font-family: 'Roboto', sans-serif;
     display: flex;
     justify-content: center;
@@ -20,44 +20,23 @@ body {
 }
 
 header h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
     letter-spacing: 2px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     border-bottom: 2px solid #e5e7eb;
     width: 100%;
     text-align: center;
-    padding-bottom: 15px;
-    color: #1a1a1b;
+    padding-bottom: 10px;
 }
 
-/* 2. WORD STACK */
-#word-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 20px;
-    width: 100%;
-}
-
-.word-card {
-    background-color: #f3f4f6;
-    padding: 8px;
-    border-radius: 4px;
-    text-align: center;
-    font-size: 1rem;
-    color: #9ca3af;
-    text-transform: uppercase;
-    font-weight: bold;
-}
-
-/* 3. INTERACTIVE GUESS ROW */
+/* 2. INTERACTIVE GUESS ROW */
 #guess-row {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    margin: 25px 0;
+    margin: 20px 0 10px 0;
     width: 100%;
 }
 
@@ -68,27 +47,26 @@ header h1 {
 }
 
 .letter-tile {
-    width: 42px;
-    height: 52px;
+    width: 38px;
+    height: 48px;
     border: 2px solid #1a1a1b;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-weight: bold;
     background-color: #ffffff;
-    color: #1a1a1b;
     text-transform: uppercase;
 }
 
 .slot {
-    width: 42px;
-    height: 52px;
+    width: 38px;
+    height: 48px;
     border: 2px dashed #d1d5db;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     cursor: pointer;
     color: #d1d5db;
     background: #f9fafb;
@@ -112,9 +90,28 @@ header h1 {
     font-size: 0.95rem;
     font-weight: 500;
     min-height: 24px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     text-align: center;
-    color: #1a1a1b;
+}
+
+/* 3. WORD STACK (Now appearing below) */
+#word-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 15px 0;
+    width: 100%;
+}
+
+.word-card {
+    background-color: #f3f4f6;
+    padding: 6px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    font-weight: bold;
 }
 
 /* 4. KEYBOARD */
@@ -122,67 +119,57 @@ header h1 {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     margin-top: auto;
 }
 
 .keyboard-row {
     display: flex;
     justify-content: center;
-    gap: 6px;
+    gap: 5px;
 }
 
 .key {
     background-color: #d1d5db;
     color: #1a1a1b;
-    height: 58px;
+    height: 54px;
     flex: 1;
-    max-width: 44px;
+    max-width: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 1.1rem;
-    border: none;
+    font-size: 1rem;
 }
 
 .key.wide {
-    max-width: 80px;
-    font-size: 0.85rem;
+    max-width: 75px;
+    font-size: 0.8rem;
     background-color: #9ca3af;
 }
 
-.key:active {
-    background-color: #4b5563;
-    color: white;
+/* 5. GAME OVER UI */
+.final-score-text {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a1a1b;
+    margin: 10px 0;
+    text-align: center;
 }
 
-/* 5. MODERN SHARE BUTTON & SCORE */
 #share-btn {
     display: none;
     align-items: center;
     justify-content: center;
-    background: #ffffff;
-    color: #1a1a1b;
-    border: 2px solid #1a1a1b;
+    background: #1a1a1b;
+    color: white;
+    border: none;
     padding: 12px 24px;
-    border-radius: 8px;
+    border-radius: 50px;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 0.9rem;
     cursor: pointer;
-    margin-bottom: 20px;
-    transition: all 0.2s;
-}
-
-#share-btn:hover {
-    background: #f3f4f6;
-}
-
-.final-score {
-    font-size: 4rem;
-    font-weight: 800;
-    color: #1a1a1b;
-    margin: 5px 0 15px 0;
+    margin: 10px 0 20px 0;
 }
