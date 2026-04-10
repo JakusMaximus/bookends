@@ -1,5 +1,4 @@
 (function() {
-    // --- 1. VARIABLES ---
     let dictionary = [];
     let history = ["CAT"]; 
     let moveHistory = []; 
@@ -17,13 +16,9 @@
     const shareBtn = document.getElementById('share-btn');
     const tutorialElem = document.getElementById('tutorial-text');
 
-    // --- 2. INITIALIZE ---
     function init() {
         createKeyboard();
-        
-        // Load streak
         streak = parseInt(localStorage.getItem('bookends_streak')) || 0;
-
         let loadedSuccessfully = false;
         try {
             const saved = localStorage.getItem('bookends_daily_state');
@@ -39,20 +34,19 @@
                 }
             }
         } catch (e) { console.warn("Restore failed"); }
-
         if (!loadedSuccessfully) startFreshGame();
-
         loadDictionary();
         refreshUI();
     }
 
     function startFreshGame() {
-        let wordList = ["CAT", "DOG", "ACE", "BOX", "SKY"]; 
+        let wordList = ["CAT", "DOG", "ACE"]; 
         if (window.DAILY_STARTERS && Array.isArray(window.DAILY_STARTERS)) {
             wordList = window.DAILY_STARTERS.filter(w => w.length === 3);
         }
         const now = new Date();
-        const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+        const start = new Date(now.getFullYear(), 0, 0);
+        const dayOfYear = Math.floor((now - start) / 86400000);
         history = [wordList[dayOfYear % wordList.length].toUpperCase()];
         moveHistory = [];
         isGameOver = false;
@@ -71,33 +65,25 @@
 
     function validateCurrentStarter() {
         if (isGameOver || history.length > 1 || !isDictionaryLoaded) return;
-        
         const starter = history[0];
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
         let valid = false;
-        
-        // Check if any letter can be added to the start or end
         for (let c of alphabet) {
             if (dictionary.includes(c + starter) || dictionary.includes(starter + c)) {
-                valid = true; 
-                break;
+                valid = true; break;
             }
         }
-
-        // If the word is a dead end, pick a "Power Starter" instead
+        // ROTATING SAFETY LOGIC: If dead end, pick a daily-rotating power word
         if (!valid) {
             const powerStarters = ["ACE", "ART", "INK", "OIL", "EAR", "AMP", "END", "AIR", "OLD", "ALL", "ICE", "ORE"];
             const now = new Date();
-            const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
-            
-            // Pick a backup word that also changes daily
+            const start = new Date(now.getFullYear(), 0, 0);
+            const dayOfYear = Math.floor((now - start) / 86400000);
             history = [powerStarters[dayOfYear % powerStarters.length]];
-            console.log("Dead-end detected. Rotating to safety word:", history[0]);
             refreshUI();
         }
     }
 
-    // --- 3. INPUT HANDLERS ---
     window.selectSlot = function(side) {
         if (isGameOver || !isDictionaryLoaded) return;
         selectedSide = side;
@@ -115,7 +101,6 @@
         if (isGameOver || !selectedSide || !pendingLetter || !isDictionaryLoaded) return;
         const lastWord = history[history.length - 1];
         const guess = selectedSide === 'prefix' ? pendingLetter + lastWord : lastWord + pendingLetter;
-
         if (dictionary.includes(guess)) {
             history.push(guess);
             moveHistory.push({side: selectedSide, success: true});
@@ -147,22 +132,17 @@
         localStorage.setItem('bookends_daily_state', JSON.stringify(state));
     }
 
-    // --- 4. UI DRAWING ---
     function refreshUI() {
-        // Hide tutorial if game has progressed
         if (tutorialElem) {
             tutorialElem.style.display = (history.length > 1 || isGameOver) ? "none" : "block";
         }
-
         const lastWord = history[history.length - 1];
-        
         if (activeElem) {
             activeElem.innerHTML = lastWord.split('').map(l => `<div class="letter-tile">${l}</div>`).join('');
         }
         if (stackElem) {
             stackElem.innerHTML = history.slice(0, -1).reverse().map(w => `<div class="word-card">${w}</div>`).join('');
         }
-
         const pre = document.getElementById('slot-prefix');
         const suf = document.getElementById('slot-suffix');
         if (pre && suf) {
