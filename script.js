@@ -27,7 +27,6 @@
             
             if (saved) {
                 const state = JSON.parse(saved);
-                // Only restore if the save is from TODAY
                 if (state && state.date === today) {
                     history = state.history || [];
                     moveHistory = state.moveHistory || [];
@@ -40,24 +39,28 @@
             console.warn("Storage error:", e);
         }
 
-        // If no valid save for today, start fresh
         if (!loadedSuccessfully) {
-            let wordList = ["CAT"]; 
-            if (window.DAILY_STARTERS && Array.isArray(window.DAILY_STARTERS)) {
-                wordList = window.DAILY_STARTERS;
-            }
-            const now = new Date();
-            const start = new Date(now.getFullYear(), 0, 0);
-            const dayOfYear = Math.floor((now - start) / 86400000);
-            
-            history = [wordList[dayOfYear % wordList.length].toUpperCase()];
-            moveHistory = [];
-            isGameOver = false;
-            lastFailedGuess = "";
+            startFreshGame();
         }
 
-        // Always refresh UI after logic is set
         refreshUI();
+    }
+
+    function startFreshGame() {
+        let wordList = ["CAT"]; 
+        if (window.DAILY_STARTERS && Array.isArray(window.DAILY_STARTERS)) {
+            // Filter out any mistakes (like "GLAD") that aren't 3 letters
+            wordList = window.DAILY_STARTERS.filter(w => w.length === 3);
+        }
+        
+        const now = new Date();
+        const start = new Date(now.getFullYear(), 0, 0);
+        const dayOfYear = Math.floor((now - start) / 86400000);
+        
+        history = [wordList[dayOfYear % wordList.length].toUpperCase()];
+        moveHistory = [];
+        isGameOver = false;
+        lastFailedGuess = "";
     }
 
     // --- 3. THE CORE LOGIC ---
@@ -83,11 +86,50 @@
             .then(text => {
                 dictionary = text.toUpperCase().split('\n').map(w => w.trim());
                 isDictionaryLoaded = true;
+                
+                // Verify the word can actually be played for 2 rounds
+                validateCurrentStarter();
+                
                 if (message && !isGameOver) message.innerText = "Select a [+] to add a letter";
             })
             .catch(err => {
-                if (message) message.innerText = "Error. Please check connection.";
+                if (message) message.innerText = "Error loading dictionary.";
             });
+    }
+
+    function validateCurrentStarter() {
+        if (isGameOver || history.length > 1) return; 
+
+        const starter = history[0];
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        let canReachFive = false;
+
+        // Check if a 4-letter word exists, then a 5-letter word from that
+        for (let char1 of alphabet) {
+            const p4 = char1 + starter;
+            const s4 = starter + char1;
+
+            const possible4s = [];
+            if (dictionary.includes(p4)) possible4s.push(p4);
+            if (dictionary.includes(s4)) possible4s.push(s4);
+
+            for (let word4 of possible4s) {
+                for (let char2 of alphabet) {
+                    if (dictionary.includes(char2 + word4) || dictionary.includes(word4 + char2)) {
+                        canReachFive = true;
+                        break;
+                    }
+                }
+                if (canReachFive) break;
+            }
+            if (canReachFive) break;
+        }
+
+        if (!canReachFive) {
+            console.log(starter + " had no path to 5 letters. Swapping to fallback.");
+            history = ["ACE"]; // Guaranteed safe starter
+            refreshUI();
+        }
     }
 
     window.selectSlot = function(side) {
@@ -130,18 +172,13 @@
 
     // --- 4. UI UPDATES ---
     function refreshUI() {
-        // SAFETY: If history is empty for some reason, don't break the UI
         if (!history || history.length === 0) return;
-        
         const lastWord = history[history.length - 1];
         
-        // Show the list of previous words
         if (stack) {
             stack.innerHTML = history.slice(0, -1).reverse()
                 .map(w => `<div class="word-card">${w}</div>`).join('');
         }
-        
-        // Show the tiles for the current active word
         if (activeDisplay) {
             activeDisplay.innerHTML = lastWord.split('')
                 .map(l => `<div class="letter-tile">${l}</div>`).join('');
@@ -152,11 +189,9 @@
         
         if (pre && suf) {
             if (isGameOver) {
-                // If game is over, hide the clickable [+] slots
                 pre.style.visibility = "hidden";
                 suf.style.visibility = "hidden";
             } else {
-                // Otherwise, show them and update their appearance
                 pre.style.visibility = "visible";
                 suf.style.visibility = "visible";
                 pre.innerText = (selectedSide === 'prefix' && pendingLetter) ? pendingLetter : "+";
@@ -166,7 +201,6 @@
             }
         }
 
-        // If game is over, trigger the final message
         if (isGameOver) {
             triggerGameOver(lastFailedGuess);
         }
