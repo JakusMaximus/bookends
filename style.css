@@ -141,7 +141,7 @@ h1 { margin-top: 10px; margin-bottom: 20px; font-size: 1.8rem; }
 .key.wide { flex: 1.5; max-width: 80px; }
 
 #share-btn {
-    display: none; /* Controlled by JS */
+    display: none; 
     background: var(--primary);
     color: white;
     border: none;
@@ -154,6 +154,7 @@ h1 { margin-top: 10px; margin-bottom: 20px; font-size: 1.8rem; }
     transition: transform 0.2s;
     display: flex;
     align-items: center;
+    justify-content: center; 
 }
 
 #share-btn:active {
