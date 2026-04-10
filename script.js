@@ -10,6 +10,7 @@
     let lastFailedGuess = ""; 
     let streak = 0;
 
+    // Grab HTML elements
     const stack = document.getElementById('word-stack');
     const activeDisplay = document.getElementById('active-word-display');
     const message = document.getElementById('message');
@@ -18,19 +19,16 @@
 
     // --- 2. THE INITIALIZE FUNCTION ---
     function init() {
-        createKeyboard();
-        loadDictionary();
-
-        // Load Streak
+        console.log("Game Initializing...");
+        
+        // Load Streak FIRST so it's ready
         const savedStreak = localStorage.getItem('bookends_streak');
         streak = savedStreak ? parseInt(savedStreak) : 0;
         
-        // Update title to show streak if it exists
-        if (streak > 0) {
-            const header = document.querySelector('h1');
-            if (header) header.innerHTML = `📖 BOOKENDS 📖 <span style="font-size:0.6em; margin-left:10px;">🔥 ${streak}</span>`;
-        }
+        // Build the keyboard so the user sees something immediately
+        createKeyboard();
 
+        // 1. Logic to restore or start game
         let loadedSuccessfully = false;
         try {
             const saved = localStorage.getItem('bookends_daily_state');
@@ -54,6 +52,10 @@
             startFreshGame();
         }
 
+        // 2. Load dictionary in the background
+        loadDictionary();
+
+        // 3. Draw the initial UI
         refreshUI();
     }
 
@@ -122,6 +124,7 @@
             })
             .catch(err => {
                 if (message) message.innerText = "Error loading dictionary.";
+                console.error(err);
             });
     }
 
@@ -157,3 +160,92 @@
 
     window.selectSlot = function(side) {
         if (isGameOver || !isDictionaryLoaded) return;
+        selectedSide = side;
+        pendingLetter = ""; 
+        if (message) message.innerText = "Select a letter for the " + side;
+        refreshUI();
+    };
+
+    function handleKeyInput(char) {
+        if (isGameOver || !selectedSide) return;
+        pendingLetter = char;
+        if (message) message.innerText = "Ready to submit?";
+        refreshUI();
+    }
+
+    function submitMove() {
+        if (isGameOver || !selectedSide || !pendingLetter || !isDictionaryLoaded) return;
+        
+        const lastWord = history[history.length - 1];
+        const guess = selectedSide === 'prefix' ? pendingLetter + lastWord : lastWord + pendingLetter;
+
+        if (dictionary.includes(guess)) {
+            history.push(guess);
+            moveHistory.push({side: selectedSide, success: true});
+            selectedSide = null;
+            pendingLetter = "";
+            if (message) message.innerText = "Accepted!";
+            saveGameState();
+            refreshUI();
+        } else {
+            isGameOver = true;
+            lastFailedGuess = guess; 
+            moveHistory.push({side: selectedSide, success: false});
+            updateStreak(); 
+            saveGameState();
+            refreshUI(); 
+        }
+    }
+
+    // --- 4. UI UPDATES ---
+    function refreshUI() {
+        if (!history || history.length === 0) return;
+        const lastWord = history[history.length - 1];
+        
+        // Word stack
+        if (stack) {
+            stack.innerHTML = history.slice(0, -1).reverse()
+                .map(w => `<div class="word-card">${w}</div>`).join('');
+        }
+        
+        // Active word
+        if (activeDisplay) {
+            activeDisplay.innerHTML = lastWord.split('')
+                .map(l => `<div class="letter-tile">${l}</div>`).join('');
+        }
+
+        // Slots
+        const pre = document.getElementById('slot-prefix');
+        const suf = document.getElementById('slot-suffix');
+        
+        if (pre && suf) {
+            if (isGameOver) {
+                pre.style.visibility = "hidden";
+                suf.style.visibility = "hidden";
+            } else {
+                pre.style.visibility = "visible";
+                suf.style.visibility = "visible";
+                pre.innerText = (selectedSide === 'prefix' && pendingLetter) ? pendingLetter : "+";
+                suf.innerText = (selectedSide === 'suffix' && pendingLetter) ? pendingLetter : "+";
+                pre.className = `slot ${selectedSide === 'prefix' ? 'selected' : ''} ${pendingLetter && selectedSide === 'prefix' ? 'filled' : ''}`;
+                suf.className = `slot ${selectedSide === 'suffix' ? 'selected' : ''} ${pendingLetter && selectedSide === 'suffix' ? 'filled' : ''}`;
+            }
+        }
+
+        if (isGameOver) {
+            triggerGameOver(lastFailedGuess);
+        }
+    }
+
+    function triggerGameOver(guess) {
+        if (message) {
+            message.innerText = (guess && guess !== "") 
+                ? `"${guess}" isn't in our dictionary.` 
+                : "Game Over!";
+        }
+        
+        if (!document.querySelector('.final-score-text')) {
+            const n = history.length;
+            const scoreDiv = document.createElement('div');
+            scoreDiv.className = "final-score-text";
+            scoreDiv.innerHTML = `You reached Round ${n}.<br>
