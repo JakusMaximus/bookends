@@ -1,8 +1,3 @@
-No problem at all! I have integrated the fixes we discussed: the Share Button now only appears when the game ends, I added Physical Keyboard support so you can type on a computer, and I cleaned up the Date Logic to ensure the "Daily" word resets correctly for everyone.
-
-Replace everything in your script.js with this code:
-
-JavaScript
 (function() {
     let dictionary = [];
     let history = ["CAT"]; 
@@ -53,7 +48,6 @@ JavaScript
         if (window.DAILY_STARTERS && Array.isArray(window.DAILY_STARTERS)) {
             wordList = window.DAILY_STARTERS.filter(w => w.length === 3);
         }
-        // Use a more stable date calculation for the daily rotation
         const now = new Date();
         const start = new Date(now.getFullYear(), 0, 0);
         const diff = now - start;
@@ -67,13 +61,19 @@ JavaScript
     }
 
     function loadDictionary() {
-        fetch('words_alpha.txt')
+        if (msgElem) msgElem.innerText = "Loading Dictionary...";
+        
+        fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt')
             .then(res => res.text())
             .then(text => {
                 dictionary = text.toUpperCase().split('\n').map(w => w.trim());
                 isDictionaryLoaded = true;
                 validateCurrentStarter();
                 if (msgElem && !isGameOver) msgElem.innerText = "Select a side to play";
+            })
+            .catch(err => {
+                if (msgElem) msgElem.innerText = "Error loading words. Please refresh.";
+                console.error(err);
             });
     }
 
@@ -173,23 +173,19 @@ JavaScript
     }
 
     function refreshUI() {
-        // Tutorial visibility
         if (tutorialElem) {
             tutorialElem.style.display = (history.length > 1 || isGameOver) ? "none" : "block";
         }
 
-        // Active word display
         const lastWord = history[history.length - 1];
         if (activeElem) {
             activeElem.innerHTML = lastWord.split('').map(l => `<div class="letter-tile">${l}</div>`).join('');
         }
 
-        // History stack
         if (stackElem) {
             stackElem.innerHTML = history.slice(0, -1).reverse().map(w => `<div class="word-card">${w}</div>`).join('');
         }
 
-        // Slots
         const pre = document.getElementById('slot-prefix');
         const suf = document.getElementById('slot-suffix');
         if (pre && suf) {
@@ -206,7 +202,6 @@ JavaScript
             }
         }
 
-        // Handle Share Button visibility
         if (shareBtn) {
             shareBtn.style.display = isGameOver ? "flex" : "none";
         }
@@ -267,7 +262,7 @@ JavaScript
             });
 
             const dateStr = new Date().toLocaleDateString();
-            const text = `🔠 Letterends Daily (${dateStr}) 🔠\nRound: ${history.length}\nStreak: ${streak}🔥\n\n${gridText}\nhttps://www.letterends.com`;
+            const text = `🔠 Letter Ends Daily (${dateStr}) 🔠\nRound: ${history.length}\nStreak: ${streak}🔥\n\n${gridText}\nhttps://www.letterends.com`;
             
             navigator.clipboard.writeText(text).then(() => {
                 alert("Results copied to clipboard!");
