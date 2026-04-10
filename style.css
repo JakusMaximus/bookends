@@ -15,14 +15,7 @@ body {
     margin: 0;
     padding: 10px;
     touch-action: manipulation;
-}
-
-#controls {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    /* Added more space above and below the button container */
-    margin: 25px 0; 
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 #game-container {
@@ -31,9 +24,14 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-sizing: border-box;
 }
 
-h1 { margin-top: 10px; margin-bottom: 20px; font-size: 1.8rem; }
+h1 { 
+    margin-top: 10px; 
+    margin-bottom: 20px; 
+    font-size: 1.5rem; /* Slightly smaller for mobile headers */
+}
 
 #word-stack {
     display: flex;
@@ -42,17 +40,21 @@ h1 { margin-top: 10px; margin-bottom: 20px; font-size: 1.8rem; }
     margin-bottom: 20px;
     min-height: 50px;
     justify-content: flex-end;
+    align-items: center;
+    width: 100%;
 }
 
 .word-card {
     background: #f8f9fa;
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 4px;
     font-weight: bold;
     letter-spacing: 2px;
     color: #787c7e;
     border: 1px solid #e3e3e3;
     animation: slideIn 0.3s ease-out;
+    font-size: 0.9rem;
+    white-space: nowrap;
 }
 
 @keyframes slideIn {
@@ -64,33 +66,37 @@ h1 { margin-top: 10px; margin-bottom: 20px; font-size: 1.8rem; }
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 4px; /* Reduced gap to save space */
     margin-bottom: 15px;
+    width: 100%;
+    padding: 0 5px;
+    box-sizing: border-box;
 }
 
-.letter-tile {
-    width: 55px;
-    height: 55px;
+/* RESPONSIVE LETTER BOXES */
+.letter-tile, .slot {
+    /* Use 'vw' (viewport width) so they shrink on small screens */
+    width: 10vw; 
+    height: 10vw;
+    /* But don't let them get too huge on desktop or too tiny */
+    max-width: 55px;
+    max-height: 55px;
+    min-width: 30px;
+    min-height: 30px;
+    
     border: 2px solid #333;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
+    font-size: clamp(1rem, 5vw, 1.8rem); /* Font sizes adjusts to box size */
     font-weight: bold;
     border-radius: 4px;
     background: white;
+    box-sizing: border-box;
 }
 
 .slot {
-    width: 55px;
-    height: 55px;
     border: 2px dashed var(--accent);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    font-weight: bold;
     cursor: pointer;
     background-color: transparent;
 }
@@ -105,30 +111,41 @@ h1 { margin-top: 10px; margin-bottom: 20px; font-size: 1.8rem; }
     background-color: #fff;
 }
 
-#message { height: 20px; margin: 10px 0; font-weight: bold; color: var(--text); }
+#message { 
+    height: 24px; 
+    margin: 10px 0; 
+    font-weight: bold; 
+    color: var(--text); 
+    text-align: center;
+}
 
 #tutorial-text {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #666;
     text-align: center;
-    max-width: 280px;
+    max-width: 300px;
     margin-bottom: 20px;
     line-height: 1.4;
     font-style: italic;
 }
 
-#keyboard { width: 100%; max-width: 480px; }
+#keyboard { 
+    width: 100%; 
+    max-width: 480px; 
+    margin-top: auto; /* Pushes keyboard to bottom if space allows */
+}
 
 .keyboard-row {
     display: flex;
     justify-content: center;
     gap: 4px;
     margin-bottom: 8px;
+    touch-action: none;
 }
 
 .key {
     background: var(--accent);
-    padding: 18px 0;
+    padding: 15px 0;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
@@ -136,34 +153,44 @@ h1 { margin-top: 10px; margin-bottom: 20px; font-size: 1.8rem; }
     max-width: 40px;
     text-align: center;
     user-select: none;
+    font-size: 0.9rem;
 }
 
-.key.wide { flex: 1.5; max-width: 80px; }
+.key.wide { 
+    flex: 2; 
+    max-width: 80px; 
+}
+
+#controls {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 15px 0; 
+}
 
 #share-btn {
     display: none; 
     background: var(--primary);
     color: white;
     border: none;
-    padding: 14px 28px; /* Slightly larger for easier tapping */
+    padding: 12px 24px;
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    font-size: 1.1rem;
+    font-size: 1rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     transition: transform 0.2s;
-    display: flex;
     align-items: center;
-    justify-content: center; 
+    justify-content: center;
 }
 
 #share-btn:active {
-    transform: scale(0.96); /* Gives tactile feedback when pressed */
+    transform: scale(0.96);
 }
 
 .final-score-text {
     text-align: center;
-    margin: 15px 0;
+    margin: 10px 0;
     font-size: 1.1rem;
     font-weight: bold;
 }
