@@ -8,6 +8,7 @@
     let pendingLetter = "";
     let isDictionaryLoaded = false;
     let lastFailedGuess = ""; 
+    let streak = 0; // New: streak tracker
 
     const stack = document.getElementById('word-stack');
     const activeDisplay = document.getElementById('active-word-display');
@@ -19,6 +20,10 @@
     function init() {
         createKeyboard();
         loadDictionary();
+
+        // Load Streak from permanent storage
+        const savedStreak = localStorage.getItem('bookends_streak');
+        streak = savedStreak ? parseInt(savedStreak) : 0;
 
         let loadedSuccessfully = false;
         try {
@@ -49,7 +54,6 @@
     function startFreshGame() {
         let wordList = ["CAT"]; 
         if (window.DAILY_STARTERS && Array.isArray(window.DAILY_STARTERS)) {
-            // Filter out any mistakes (like "GLAD") that aren't 3 letters
             wordList = window.DAILY_STARTERS.filter(w => w.length === 3);
         }
         
@@ -79,6 +83,28 @@
         }
     }
 
+    // NEW: Update Streak Logic
+    function updateStreak() {
+        const today = new Date();
+        const todayStr = today.toDateString();
+        const lastDateStr = localStorage.getItem('bookends_last_date');
+        
+        if (lastDateStr === todayStr) return; // Already counted today
+
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toDateString();
+
+        if (lastDateStr === yesterdayStr) {
+            streak++; // Played yesterday, increment!
+        } else {
+            streak = 1; // Skipped a day, reset to 1
+        }
+
+        localStorage.setItem('bookends_streak', streak);
+        localStorage.setItem('bookends_last_date', todayStr);
+    }
+
     function loadDictionary() {
         if (message) message.innerText = "Loading dictionary...";
         fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt')
@@ -86,10 +112,7 @@
             .then(text => {
                 dictionary = text.toUpperCase().split('\n').map(w => w.trim());
                 isDictionaryLoaded = true;
-                
-                // Verify the word can actually be played for 2 rounds
                 validateCurrentStarter();
-                
                 if (message && !isGameOver) message.innerText = "Select a [+] to add a letter";
             })
             .catch(err => {
@@ -99,16 +122,13 @@
 
     function validateCurrentStarter() {
         if (isGameOver || history.length > 1) return; 
-
         const starter = history[0];
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
         let canReachFive = false;
 
-        // Check if a 4-letter word exists, then a 5-letter word from that
         for (let char1 of alphabet) {
             const p4 = char1 + starter;
             const s4 = starter + char1;
-
             const possible4s = [];
             if (dictionary.includes(p4)) possible4s.push(p4);
             if (dictionary.includes(s4)) possible4s.push(s4);
@@ -116,8 +136,7 @@
             for (let word4 of possible4s) {
                 for (let char2 of alphabet) {
                     if (dictionary.includes(char2 + word4) || dictionary.includes(word4 + char2)) {
-                        canReachFive = true;
-                        break;
+                        canReachFive = true; break;
                     }
                 }
                 if (canReachFive) break;
@@ -126,8 +145,7 @@
         }
 
         if (!canReachFive) {
-            console.log(starter + " had no path to 5 letters. Swapping to fallback.");
-            history = ["ACE"]; // Guaranteed safe starter
+            history = ["ACE"];
             refreshUI();
         }
     }
@@ -165,12 +183,12 @@
             isGameOver = true;
             lastFailedGuess = guess; 
             moveHistory.push({side: selectedSide, success: false});
+            updateStreak(); // Mark that they played today!
             saveGameState();
             refreshUI(); 
         }
     }
 
-    // --- 4. UI UPDATES ---
     function refreshUI() {
         if (!history || history.length === 0) return;
         const lastWord = history[history.length - 1];
@@ -221,7 +239,8 @@
             
             const scoreDiv = document.createElement('div');
             scoreDiv.className = "final-score-text";
-            scoreDiv.innerText = `You reached the ${n}${suffix} word.`;
+            // Updated: Display streak in the final message
+            scoreDiv.innerHTML = `You reached the ${n}${suffix} word.<br>🔥 Daily Streak: ${streak}`;
             if (message) message.after(scoreDiv);
         }
 
@@ -229,7 +248,6 @@
         if (keyboard) keyboard.style.opacity = "0.5"; 
     }
 
-    // --- 5. KEYBOARD & SHARE ---
     function createKeyboard() {
         if (!keyboard) return;
         const rows = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
@@ -270,7 +288,8 @@
                 const block = move.success ? "🟦" : "🟥";
                 grid += (move.side === 'prefix' ? block + "🟩".repeat(history[0].length) : "🟩".repeat(history[0].length) + block) + "\n";
             });
-            const text = `📖 Bookends Daily 📖\nScore: ${history.length}\n\n${grid}\n${window.location.href}`;
+            // Updated: Add streak to the share text
+            const text = `📖 Bookends Daily 📖\nScore: ${history.length} | Streak: ${streak}🔥\n\n${grid}\n${window.location.href}`;
             navigator.clipboard.writeText(text);
             alert("Score copied!");
         };
