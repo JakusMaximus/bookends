@@ -1,59 +1,73 @@
 (function() {
+    // --- 1. SET UP VARIABLES ---
     let dictionary = [];
     let history = [];
     let moveHistory = []; 
     let isGameOver = false;
     let selectedSide = null; 
     let pendingLetter = "";
-    let isDictionaryLoaded = false; // New check
+    let isDictionaryLoaded = false;
 
+    // Grab HTML elements
     const stack = document.getElementById('word-stack');
     const activeDisplay = document.getElementById('active-word-display');
     const message = document.getElementById('message');
     const shareBtn = document.getElementById('share-btn');
     const keyboard = document.getElementById('keyboard');
 
+    // --- 2. THE INITIALIZE FUNCTION ---
     function init() {
+        console.log("Game Initializing...");
+
+        // Ensure keyboard is created first so the user sees something
         createKeyboard();
+
+        // Load dictionary in the background
         loadDictionary();
 
-        // Check for a saved game
+        // Try to load a saved game for today
+        let loadedSuccessfully = false;
         try {
             const saved = localStorage.getItem('bookends_daily_state');
             const today = new Date().toDateString();
             
             if (saved) {
                 const state = JSON.parse(saved);
-                if (state.date === today) {
-                    history = state.history;
-                    moveHistory = state.moveHistory;
-                    isGameOver = state.isGameOver;
-                    
-                    if (isGameOver) {
-                        triggerGameOver("the last word", true); 
-                    }
-                    refreshUI();
-                    return; 
+                if (state && state.date === today) {
+                    history = state.history || [];
+                    moveHistory = state.moveHistory || [];
+                    isGameOver = state.isGameOver || false;
+                    loadedSuccessfully = true;
+                    console.log("State restored from localStorage");
                 }
             }
         } catch (e) {
-            console.log("Local storage not available:", e);
+            console.warn("Local storage blocked or empty:", e);
         }
 
-        let wordList = ["CAT"]; 
-        if (typeof DAILY_STARTERS !== 'undefined') wordList = DAILY_STARTERS;
-        
-        const now = new Date();
-        const start = new Date(now.getFullYear(), 0, 0);
-        const dayOfYear = Math.floor((now - start) / 86400000);
-        
-        history = [wordList[dayOfYear % wordList.length].toUpperCase()];
-        moveHistory = [];
-        isGameOver = false;
-        
+        // If we didn't load a save, start fresh
+        if (!loadedSuccessfully) {
+            console.log("Starting fresh game");
+            let wordList = ["CAT"]; 
+            // Check if DAILY_STARTERS exists in the other file
+            if (window.DAILY_STARTERS && Array.isArray(window.DAILY_STARTERS)) {
+                wordList = window.DAILY_STARTERS;
+            }
+            
+            const now = new Date();
+            const start = new Date(now.getFullYear(), 0, 0);
+            const dayOfYear = Math.floor((now - start) / 86400000);
+            
+            history = [wordList[dayOfYear % wordList.length].toUpperCase()];
+            moveHistory = [];
+            isGameOver = false;
+        }
+
+        // Show the word and the slots
         refreshUI();
     }
 
+    // --- 3. THE CORE LOGIC ---
     function saveGameState() {
         try {
             const state = {
@@ -64,23 +78,24 @@
             };
             localStorage.setItem('bookends_daily_state', JSON.stringify(state));
         } catch (e) {
-            console.log("Could not save state:", e);
+            console.error("Save failed:", e);
         }
     }
 
     function loadDictionary() {
-        message.innerText = "Loading dictionary..."; // Let the user know
+        if (message) message.innerText = "Loading dictionary...";
+        
         fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt')
             .then(res => res.text())
             .then(text => {
                 dictionary = text.toUpperCase().split('\n').map(w => w.trim());
                 isDictionaryLoaded = true;
-                message.innerText = "Select a [+] to add a letter";
-                console.log("Dictionary loaded successfully");
+                if (message && !isGameOver) message.innerText = "Select a [+] to add a letter";
+                console.log("Dictionary ready");
             })
             .catch(err => {
-                message.innerText = "Error loading dictionary. Please refresh.";
-                console.error("Dictionary fetch failed:", err);
+                if (message) message.innerText = "Dictionary Error. Check connection.";
+                console.error("Fetch error:", err);
             });
     }
 
@@ -88,14 +103,14 @@
         if (isGameOver || !isDictionaryLoaded) return;
         selectedSide = side;
         pendingLetter = ""; 
-        message.innerText = "Select a letter for the " + side;
+        if (message) message.innerText = "Select a letter for the " + side;
         refreshUI();
     };
 
     function handleKeyInput(char) {
         if (isGameOver || !selectedSide) return;
         pendingLetter = char;
-        message.innerText = "Ready to submit?";
+        if (message) message.innerText = "Ready to submit?";
         refreshUI();
     }
 
@@ -110,7 +125,7 @@
             moveHistory.push({side: selectedSide, success: true});
             selectedSide = null;
             pendingLetter = "";
-            message.innerText = "Accepted!";
+            if (message) message.innerText = "Accepted!";
             saveGameState();
             refreshUI();
         } else {
@@ -120,12 +135,16 @@
         }
     }
 
+    // --- 4. UI UPDATES ---
     function refreshUI() {
+        if (!history.length) return;
         const lastWord = history[history.length - 1];
+        
         if (stack) {
             stack.innerHTML = history.slice(0, -1).reverse()
                 .map(w => `<div class="word-card">${w}</div>`).join('');
         }
+        
         if (activeDisplay) {
             activeDisplay.innerHTML = lastWord.split('')
                 .map(l => `<div class="letter-tile">${l}</div>`).join('');
@@ -141,6 +160,80 @@
             pre.className = `slot ${selectedSide === 'prefix' ? 'selected' : ''} ${pendingLetter && selectedSide === 'prefix' ? 'filled' : ''}`;
             suf.className = `slot ${selectedSide === 'suffix' ? 'selected' : ''} ${pendingLetter && selectedSide === 'suffix' ? 'filled' : ''}`;
         }
+
+        if (isGameOver) {
+            triggerGameOver("the last word", true);
+        }
     }
 
     function triggerGameOver(guess, isRestoring = false) {
+        isGameOver = true;
+        if (message) {
+            message.innerText = isRestoring ? "Game Over! Final score:" : `"${guess}" isn't in our dictionary.`;
+        }
+        
+        if (!document.querySelector('.final-score-text')) {
+            const n = history.length;
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            const suffix = (s[(v - 20) % 10] || s[v] || s[0]);
+            
+            const scoreDiv = document.createElement('div');
+            scoreDiv.className = "final-score-text";
+            scoreDiv.innerText = `You reached the ${n}${suffix} word.`;
+            if (message) message.after(scoreDiv);
+        }
+        if (shareBtn) shareBtn.style.display = "flex";
+    }
+
+    // --- 5. KEYBOARD GENERATION ---
+    function createKeyboard() {
+        if (!keyboard) return;
+        const rows = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
+        keyboard.innerHTML = '';
+        rows.forEach((row, i) => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'keyboard-row';
+            if (i === 2) {
+                const sub = createKey("SUBMIT", "wide");
+                sub.onclick = submitMove;
+                rowDiv.appendChild(sub);
+            }
+            row.split('').forEach(char => {
+                const k = createKey(char);
+                k.onclick = () => handleKeyInput(char);
+                rowDiv.appendChild(k);
+            });
+            if (i === 2) {
+                const back = createKey("⌫", "wide");
+                back.onclick = () => { pendingLetter = ""; refreshUI(); };
+                rowDiv.appendChild(back);
+            }
+            keyboard.appendChild(rowDiv);
+        });
+    }
+
+    function createKey(label, cls) {
+        const div = document.createElement('div');
+        div.className = `key ${cls || ""}`;
+        div.innerText = label;
+        return div;
+    }
+
+    // Share button listener
+    if (shareBtn) {
+        shareBtn.onclick = () => {
+            let grid = "⬜".repeat(history[0].length) + "\n";
+            moveHistory.forEach(move => {
+                const block = move.success ? "🟦" : "🟥";
+                grid += (move.side === 'prefix' ? block + "🟩".repeat(history[0].length) : "🟩".repeat(history[0].length) + block) + "\n";
+            });
+            const text = `📖 Bookends Daily 📖\nScore: ${history.length}\n\n${grid}\n${window.location.href}`;
+            navigator.clipboard.writeText(text);
+            alert("Score copied!");
+        };
+    }
+
+    // Run the game!
+    init();
+})();
