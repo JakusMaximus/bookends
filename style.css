@@ -1,14 +1,23 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+    --primary: #6aaa64; /* Wordle Green */
+    --accent: #d3d6da;
+    --text: #1a1a1b;
+    --bg: #ffffff;
+}
 
 body {
-    background-color: #ffffff !important;
-    color: #1a1a1b !important;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 20px 10px;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 20px;
+    touch-action: manipulation;
 }
+
+h1 { margin-bottom: 10px; font-size: 2rem; }
 
 #game-container {
     width: 100%;
@@ -18,147 +27,118 @@ body {
     align-items: center;
 }
 
-header h1 {
-    font-size: 1.8rem;
-    letter-spacing: 2px;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #e5e7eb;
-    width: 100%;
-    text-align: center;
-    padding-bottom: 10px;
-    color: #1a1a1b !important;
-}
-
-#guess-row {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    margin: 20px 0 10px 0;
-}
-
-#active-word-display {
-    display: flex;
-    flex-direction: row;
-    gap: 4px;
-}
-
-.letter-tile {
-    width: 38px;
-    height: 48px;
-    border: 2px solid #1a1a1b !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    font-weight: bold;
-    background-color: #ffffff !important;
-    color: #1a1a1b !important;
-    text-transform: uppercase;
-}
-
-.slot {
-    width: 38px;
-    height: 48px;
-    border: 2px dashed #d1d5db !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    cursor: pointer;
-    color: #d1d5db !important;
-    background: #f9fafb !important;
-}
-
-.slot.selected {
-    border: 2px solid #1a1a1b !important;
-    color: #1a1a1b !important;
-    background: #fffbeb !important;
-}
-
-.slot.filled {
-    border-style: solid !important;
-    background-color: #1a1a1b !important;
-    color: #ffffff !important;
-}
-
-#message {
-    font-size: 0.95rem;
-    min-height: 24px;
-    margin-bottom: 15px;
-    text-align: center;
-    color: #1a1a1b !important;
-}
-
+/* The Stack of previous words */
 #word-stack {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin: 15px 0;
+    gap: 8px;
+    margin-bottom: 30px;
     width: 100%;
+    align-items: center;
 }
 
 .word-card {
-    background-color: #f3f4f6 !important;
-    padding: 6px;
+    background: #f8f9fa;
+    padding: 10px 20px;
     border-radius: 4px;
-    text-align: center;
-    font-size: 0.9rem;
-    color: #9ca3af !important;
-    text-transform: uppercase;
     font-weight: bold;
+    letter-spacing: 2px;
+    color: #787c7e;
+    border: 1px solid #e3e3e3;
 }
 
+/* The Active Play Area */
+#active-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.letter-tile {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    border-radius: 4px;
+    background: white;
+}
+
+/* The Modern "Ghost" Slots */
+.slot {
+    width: 50px;
+    height: 50px;
+    border: 2px dashed var(--accent);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: transparent;
+}
+
+.slot.selected {
+    border: 2px solid var(--primary);
+    background-color: #f0fdf4;
+}
+
+.slot.filled {
+    border: 2px solid #333;
+    background-color: #fff;
+    color: var(--text);
+}
+
+/* UI Elements */
+#message { height: 24px; margin-bottom: 20px; font-weight: 500; }
+
 #keyboard {
-    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-top: auto;
+    gap: 8px;
+    width: 100%;
 }
 
 .keyboard-row {
     display: flex;
     justify-content: center;
-    gap: 5px;
+    gap: 6px;
 }
 
 .key {
-    background-color: #d1d5db !important;
-    color: #1a1a1b !important;
-    height: 54px;
-    flex: 1;
-    max-width: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    border-radius: 6px;
+    background: var(--accent);
+    padding: 15px 10px;
+    border-radius: 4px;
     cursor: pointer;
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+    user-select: none;
 }
 
-.key.wide {
-    max-width: 75px;
-    background-color: #9ca3af !important;
-}
-
-.final-score-text {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #1a1a1b !important;
-    margin: 10px 0;
-}
+.key.wide { min-width: 60px; }
 
 #share-btn {
     display: none;
-    align-items: center;
-    justify-content: center;
-    background: #1a1a1b !important;
-    color: white !important;
-    border: none;
+    margin-top: 20px;
     padding: 12px 24px;
-    border-radius: 50px;
-    cursor: pointer;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
     font-weight: bold;
+    cursor: pointer;
+}
+
+.final-score-text {
+    text-align: center;
+    margin-top: 10px;
+    line-height: 1.5;
 }
