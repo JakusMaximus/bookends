@@ -1,7 +1,7 @@
 (function() {
     // --- 1. SET UP VARIABLES ---
     let dictionary = [];
-    let history = ["CAT"]; // Hardcoded fallback so it NEVER disappears
+    let history = ["CAT"]; 
     let moveHistory = []; 
     let isGameOver = false;
     let selectedSide = null; 
@@ -14,7 +14,6 @@
     function init() {
         createKeyboard();
 
-        // Load streak
         try {
             streak = parseInt(localStorage.getItem('bookends_streak')) || 0;
         } catch(e) { streak = 0; }
@@ -44,7 +43,7 @@
     }
 
     function startFreshGame() {
-        let wordList = ["CAT", "DOG", "ACE", "BOX", "SKY"]; // Local safety list
+        let wordList = ["CAT", "DOG", "ACE", "BOX", "SKY"]; 
         if (window.DAILY_STARTERS && Array.isArray(window.DAILY_STARTERS)) {
             wordList = window.DAILY_STARTERS.filter(w => w.length === 3);
         }
@@ -231,4 +230,4 @@
     }
 
     init();
-})();
+})(); // <--- Make sure this final line is included!
