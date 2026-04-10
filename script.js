@@ -200,31 +200,34 @@
         });
     }
 
-    if (shareBtn) {
+   if (shareBtn) {
         shareBtn.onclick = () => {
             let gridText = "";
-            // We start with the original 3-letter word (all grey)
+            // The starting 3-letter word
             gridText += "⬛⬛⬛\n";
 
-            // Track current length (starts at 3)
             let currentLen = 3;
 
-            // Loop through each successful move
+            // Build the visual "vine"
             moveHistory.forEach(move => {
                 if (move === "L") {
-                    // Added to front: Green square + previous grey squares
+                    // Added to front
                     gridText += "🟩" + "⬛".repeat(currentLen) + "\n";
                 } else {
-                    // Added to back: Previous grey squares + green square
+                    // Added to back
                     gridText += "⬛".repeat(currentLen) + "🟩" + "\n";
                 }
-                currentLen++; // Word grew by one
+                currentLen++;
             });
 
-            const text = `🔠 Letterends Daily 🔠\nRound: ${history.length}\nStreak: ${streak}🔥\n\n${gridText}\n${window.location.href}`;
+            // The formatted text for sharing
+            const text = `🔠 Letter Ends Daily 🔠\nRound: ${history.length}\nStreak: ${streak}🔥\n\n${gridText}\nhttps://www.letterends.com`;
             
+            // Copying to clipboard
             navigator.clipboard.writeText(text).then(() => {
-                alert("Results grid copied!");
+                alert("Results and grid copied to clipboard!");
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
             });
         };
     }
