@@ -152,4 +152,95 @@
         
         if (pre && suf) {
             if (isGameOver) {
-                //
+                // If game is over, hide the clickable [+] slots
+                pre.style.visibility = "hidden";
+                suf.style.visibility = "hidden";
+            } else {
+                // Otherwise, show them and update their appearance
+                pre.style.visibility = "visible";
+                suf.style.visibility = "visible";
+                pre.innerText = (selectedSide === 'prefix' && pendingLetter) ? pendingLetter : "+";
+                suf.innerText = (selectedSide === 'suffix' && pendingLetter) ? pendingLetter : "+";
+                pre.className = `slot ${selectedSide === 'prefix' ? 'selected' : ''} ${pendingLetter && selectedSide === 'prefix' ? 'filled' : ''}`;
+                suf.className = `slot ${selectedSide === 'suffix' ? 'selected' : ''} ${pendingLetter && selectedSide === 'suffix' ? 'filled' : ''}`;
+            }
+        }
+
+        // If game is over, trigger the final message
+        if (isGameOver) {
+            triggerGameOver(lastFailedGuess);
+        }
+    }
+
+    function triggerGameOver(guess) {
+        if (message) {
+            message.innerText = (guess && guess !== "") 
+                ? `"${guess}" isn't in our dictionary.` 
+                : "Game Over!";
+        }
+        
+        if (!document.querySelector('.final-score-text')) {
+            const n = history.length;
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            const suffix = (s[(v - 20) % 10] || s[v] || s[0]);
+            
+            const scoreDiv = document.createElement('div');
+            scoreDiv.className = "final-score-text";
+            scoreDiv.innerText = `You reached the ${n}${suffix} word.`;
+            if (message) message.after(scoreDiv);
+        }
+
+        if (shareBtn) shareBtn.style.display = "flex";
+        if (keyboard) keyboard.style.opacity = "0.5"; 
+    }
+
+    // --- 5. KEYBOARD & SHARE ---
+    function createKeyboard() {
+        if (!keyboard) return;
+        const rows = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
+        keyboard.innerHTML = '';
+        rows.forEach((row, i) => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'keyboard-row';
+            if (i === 2) {
+                const sub = createKey("SUBMIT", "wide");
+                sub.onclick = submitMove;
+                rowDiv.appendChild(sub);
+            }
+            row.split('').forEach(char => {
+                const k = createKey(char);
+                k.onclick = () => handleKeyInput(char);
+                rowDiv.appendChild(k);
+            });
+            if (i === 2) {
+                const back = createKey("⌫", "wide");
+                back.onclick = () => { pendingLetter = ""; refreshUI(); };
+                rowDiv.appendChild(back);
+            }
+            keyboard.appendChild(rowDiv);
+        });
+    }
+
+    function createKey(label, cls) {
+        const div = document.createElement('div');
+        div.className = `key ${cls || ""}`;
+        div.innerText = label;
+        return div;
+    }
+
+    if (shareBtn) {
+        shareBtn.onclick = () => {
+            let grid = "⬜".repeat(history[0].length) + "\n";
+            moveHistory.forEach(move => {
+                const block = move.success ? "🟦" : "🟥";
+                grid += (move.side === 'prefix' ? block + "🟩".repeat(history[0].length) : "🟩".repeat(history[0].length) + block) + "\n";
+            });
+            const text = `📖 Bookends Daily 📖\nScore: ${history.length}\n\n${grid}\n${window.location.href}`;
+            navigator.clipboard.writeText(text);
+            alert("Score copied!");
+        };
+    }
+
+    init();
+})();
