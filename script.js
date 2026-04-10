@@ -15,6 +15,7 @@
     const msgElem = document.getElementById('message');
     const kbElem = document.getElementById('keyboard');
     const shareBtn = document.getElementById('share-btn');
+    const tutorialElem = document.getElementById('tutorial-text');
 
     // --- 2. INITIALIZE ---
     function init() {
@@ -58,7 +59,6 @@
     }
 
     function loadDictionary() {
-        if (msgElem) msgElem.innerText = "Loading dictionary...";
         fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt')
             .then(res => res.text())
             .then(text => {
@@ -134,6 +134,11 @@
 
     // --- 4. UI DRAWING ---
     function refreshUI() {
+        // Hide tutorial if game has progressed
+        if (tutorialElem) {
+            tutorialElem.style.display = (history.length > 1 || isGameOver) ? "none" : "block";
+        }
+
         const lastWord = history[history.length - 1];
         
         if (activeElem) {
@@ -201,7 +206,7 @@
         shareBtn.onclick = () => {
             const text = `📖 Bookends Daily 📖\nRound: ${history.length} | Streak: ${streak}🔥\n${window.location.href}`;
             navigator.clipboard.writeText(text);
-            alert("Copied to clipboard!");
+            alert("Copied results!");
         };
     }
 
