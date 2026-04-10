@@ -1,5 +1,5 @@
 (function() {
-    let dictionary = [];
+    let dictionary = null; // Will hold the Set from dictionary.js
     let history = ["CAT"]; 
     let moveHistory = []; 
     let isGameOver = false;
@@ -61,37 +61,14 @@
     }
 
     function loadDictionary() {
-        if (msgElem) msgElem.innerText = "Loading Dictionary...";
-        
-        fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt')
-            .then(res => res.text())
-            .then(text => {
-                dictionary = text.toUpperCase().split('\n').map(w => w.trim());
-                isDictionaryLoaded = true;
-                validateCurrentStarter();
-                if (msgElem && !isGameOver) msgElem.innerText = "Select a side to play";
-            })
-            .catch(err => {
-                if (msgElem) msgElem.innerText = "Error loading words. Please refresh.";
-                console.error(err);
-            });
-    }
-
-    function validateCurrentStarter() {
-        if (isGameOver || history.length > 1 || !isDictionaryLoaded) return;
-        const starter = history[0];
-        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-        let valid = false;
-        for (let c of alphabet) {
-            if (dictionary.includes(c + starter) || dictionary.includes(starter + c)) {
-                valid = true; break;
-            }
-        }
-        if (!valid) {
-            const powerStarters = ["ACE", "ART", "INK", "OIL", "EAR", "AMP", "END", "AIR", "OLD", "ALL", "ICE", "ORE"];
-            const dayId = new Date().getDate();
-            history = [powerStarters[dayId % powerStarters.length]];
-            refreshUI();
+        // Use the dictionary loaded from dictionary.js
+        if (window.FULL_DICTIONARY) {
+            dictionary = window.FULL_DICTIONARY;
+            isDictionaryLoaded = true;
+            if (msgElem && !isGameOver) msgElem.innerText = "Select a side to play";
+        } else {
+            if (msgElem) msgElem.innerText = "Dictionary error. Please refresh.";
+            console.error("FULL_DICTIONARY not found. Ensure dictionary.js is loaded.");
         }
     }
 
@@ -125,10 +102,12 @@
 
     function submitMove() {
         if (isGameOver || !selectedSide || !pendingLetter || !isDictionaryLoaded) return;
+        
         const lastWord = history[history.length - 1];
-        const guess = selectedSide === 'prefix' ? pendingLetter + lastWord : lastWord + pendingLetter;
+        const guess = (selectedSide === 'prefix' ? pendingLetter + lastWord : lastWord + pendingLetter).toUpperCase();
 
-        if (dictionary.includes(guess)) {
+        // dictionary is a Set, so .has() is lightning fast
+        if (dictionary.has(guess)) {
             moveHistory.push(selectedSide === 'prefix' ? "L" : "R"); 
             history.push(guess);
             selectedSide = null; 
