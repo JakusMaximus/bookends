@@ -17,6 +17,13 @@ body {
     touch-action: manipulation;
 }
 
+#controls {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
 #game-container {
     width: 100%;
     max-width: 500px;
@@ -133,16 +140,16 @@ h1 { margin-top: 10px; margin-bottom: 20px; font-size: 1.8rem; }
 .key.wide { flex: 1.5; max-width: 80px; }
 
 #share-btn {
-    display: none;
-    margin: 20px 0;
-    padding: 12px 24px;
+    display: none; /* Controlled by JS */
     background: var(--primary);
     color: white;
     border: none;
-    border-radius: 4px;
+    padding: 12px 20px;
+    border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    align-items: center;
+    font-size: 1rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .final-score-text {
