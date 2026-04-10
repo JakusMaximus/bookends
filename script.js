@@ -67,7 +67,7 @@ JavaScript
     }
 
     function loadDictionary() {
-        fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt')
+        fetch('words_alpha.txt')
             .then(res => res.text())
             .then(text => {
                 dictionary = text.toUpperCase().split('\n').map(w => w.trim());
