@@ -21,7 +21,8 @@ body {
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-top: 10px;
+    /* Added more space above and below the button container */
+    margin: 25px 0; 
 }
 
 #game-container {
@@ -144,12 +145,19 @@ h1 { margin-top: 10px; margin-bottom: 20px; font-size: 1.8rem; }
     background: var(--primary);
     color: white;
     border: none;
-    padding: 12px 20px;
+    padding: 14px 28px; /* Slightly larger for easier tapping */
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    font-size: 1rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+#share-btn:active {
+    transform: scale(0.96); /* Gives tactile feedback when pressed */
 }
 
 .final-score-text {
