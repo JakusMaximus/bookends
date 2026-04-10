@@ -18,10 +18,10 @@
 
     function init() {
         createKeyboard();
-        streak = parseInt(localStorage.getItem('bookends_streak')) || 0;
+        streak = parseInt(localStorage.getItem('letterends_streak')) || 0;
         let loadedSuccessfully = false;
         try {
-            const saved = localStorage.getItem('bookends_daily_state');
+            const saved = localStorage.getItem('letter_daily_state');
             const today = new Date().toDateString();
             if (saved) {
                 const state = JSON.parse(saved);
@@ -119,17 +119,17 @@
 
     function updateStreak() {
         const today = new Date().toDateString();
-        const lastDate = localStorage.getItem('bookends_last_date');
+        const lastDate = localStorage.getItem('letterends_last_date');
         if (lastDate === today) return;
         const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
         if (lastDate === yesterday.toDateString()) streak++; else streak = 1;
-        localStorage.setItem('bookends_streak', streak);
-        localStorage.setItem('bookends_last_date', today);
+        localStorage.setItem('letterends_streak', streak);
+        localStorage.setItem('letterends_last_date', today);
     }
 
     function saveGameState() {
         const state = { history, moveHistory, isGameOver, lastFailedGuess, date: new Date().toDateString() };
-        localStorage.setItem('bookends_daily_state', JSON.stringify(state));
+        localStorage.setItem('letterends_daily_state', JSON.stringify(state));
     }
 
     function refreshUI() {
@@ -199,9 +199,9 @@
 
     if (shareBtn) {
         shareBtn.onclick = () => {
-            const text = `📖 Bookends Daily 📖\nRound: ${history.length} | Streak: ${streak}🔥\n${window.location.href}`;
+            const text = `🔠 Letterends Daily 🔠\nRound: ${history.length} | Streak: ${streak}🔥\n${window.location.href}`;
             navigator.clipboard.writeText(text);
-            alert("Copied results!");
+            alert("Results copied! Share them with friends.");
         };
     }
 
