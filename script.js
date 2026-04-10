@@ -262,7 +262,7 @@
             });
 
             const dateStr = new Date().toLocaleDateString();
-            const text = `🔠 Letter Ends Daily (${dateStr}) 🔠\nRound: ${history.length}\nStreak: ${streak}🔥\n\n${gridText}\nhttps://www.letterends.com`;
+            const text = `🔠 Letterends Daily (${dateStr}) 🔠\nRound: ${history.length}\nStreak: ${streak}🔥\n\n${gridText}\nhttps://www.letterends.com`;
             
             navigator.clipboard.writeText(text).then(() => {
                 alert("Results copied to clipboard!");
