@@ -101,16 +101,19 @@
         if (isGameOver || !selectedSide || !pendingLetter || !isDictionaryLoaded) return;
         const lastWord = history[history.length - 1];
         const guess = selectedSide === 'prefix' ? pendingLetter + lastWord : lastWord + pendingLetter;
+
         if (dictionary.includes(guess)) {
+            // Record if we added to the front (L) or back (R)
+            moveHistory.push(selectedSide === 'prefix' ? "L" : "R"); 
             history.push(guess);
-            moveHistory.push({side: selectedSide, success: true});
-            selectedSide = null; pendingLetter = "";
+            selectedSide = null; 
+            pendingLetter = "";
             saveGameState();
             refreshUI();
         } else {
             isGameOver = true;
             lastFailedGuess = guess; 
-            moveHistory.push({side: selectedSide, success: false});
+            // We don't add the "X" to the grid because the failed word didn't count
             updateStreak();
             saveGameState();
             refreshUI(); 
@@ -199,9 +202,30 @@
 
     if (shareBtn) {
         shareBtn.onclick = () => {
-            const text = `🔠 Letterends Daily 🔠\nRound: ${history.length} | Streak: ${streak}🔥\n${window.location.href}`;
-            navigator.clipboard.writeText(text);
-            alert("Results copied! Share them with friends.");
+            let gridText = "";
+            // We start with the original 3-letter word (all grey)
+            gridText += "⬛⬛⬛\n";
+
+            // Track current length (starts at 3)
+            let currentLen = 3;
+
+            // Loop through each successful move
+            moveHistory.forEach(move => {
+                if (move === "L") {
+                    // Added to front: Green square + previous grey squares
+                    gridText += "🟩" + "⬛".repeat(currentLen) + "\n";
+                } else {
+                    // Added to back: Previous grey squares + green square
+                    gridText += "⬛".repeat(currentLen) + "🟩" + "\n";
+                }
+                currentLen++; // Word grew by one
+            });
+
+            const text = `🔠 Letterends Daily 🔠\nRound: ${history.length}\nStreak: ${streak}🔥\n\n${gridText}\n${window.location.href}`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Results grid copied!");
+            });
         };
     }
 
