@@ -1,5 +1,5 @@
 (function() {
-    let dictionary = null; // Will hold the Set from dictionary.js
+    let dictionary = new Set(); 
     let history = ["CAT"]; 
     let moveHistory = []; 
     let isGameOver = false;
@@ -61,15 +61,23 @@
     }
 
     function loadDictionary() {
-        // Use the dictionary loaded from dictionary.js
-        if (window.FULL_DICTIONARY) {
-            dictionary = window.FULL_DICTIONARY;
-            isDictionaryLoaded = true;
-            if (msgElem && !isGameOver) msgElem.innerText = "Select a side to play";
-        } else {
-            if (msgElem) msgElem.innerText = "Dictionary error. Please refresh.";
-            console.error("FULL_DICTIONARY not found. Ensure dictionary.js is loaded.");
-        }
+        if (msgElem) msgElem.innerText = "Loading Dictionary...";
+        
+        // Fetching the external file again
+        fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt')
+            .then(res => res.text())
+            .then(text => {
+                // This converts the huge list into a "Set" for lightning speed
+                const wordsArray = text.toUpperCase().split('\n').map(w => w.trim());
+                dictionary = new Set(wordsArray);
+                
+                isDictionaryLoaded = true;
+                if (msgElem && !isGameOver) msgElem.innerText = "Select a side to play";
+            })
+            .catch(err => {
+                if (msgElem) msgElem.innerText = "Error loading words. Please refresh.";
+                console.error(err);
+            });
     }
 
     window.selectSlot = function(side) {
@@ -106,7 +114,7 @@
         const lastWord = history[history.length - 1];
         const guess = (selectedSide === 'prefix' ? pendingLetter + lastWord : lastWord + pendingLetter).toUpperCase();
 
-        // dictionary is a Set, so .has() is lightning fast
+        // Using .has() on a Set is instant!
         if (dictionary.has(guess)) {
             moveHistory.push(selectedSide === 'prefix' ? "L" : "R"); 
             history.push(guess);
@@ -127,10 +135,8 @@
         const today = new Date().toDateString();
         const lastDate = localStorage.getItem('letterends_last_date');
         if (lastDate === today) return;
-        
         const yesterday = new Date(); 
         yesterday.setDate(yesterday.getDate() - 1);
-        
         if (lastDate === yesterday.toDateString()) {
             streak++;
         } else {
@@ -141,13 +147,7 @@
     }
 
     function saveGameState() {
-        const state = { 
-            history, 
-            moveHistory, 
-            isGameOver, 
-            lastFailedGuess, 
-            date: new Date().toDateString() 
-        };
+        const state = { history, moveHistory, isGameOver, lastFailedGuess, date: new Date().toDateString() };
         localStorage.setItem('letterends_daily_state', JSON.stringify(state));
     }
 
@@ -190,14 +190,12 @@
 
     function triggerGameOver() {
         if (msgElem) msgElem.innerText = `"${lastFailedGuess}" failed!`;
-        
         if (!document.querySelector('.final-score-text')) {
             const scoreDiv = document.createElement('div');
             scoreDiv.className = "final-score-text";
             scoreDiv.innerHTML = `Round ${history.length}<br>Streak: ${streak}🔥`;
             if (msgElem) msgElem.after(scoreDiv);
         }
-        
         if (kbElem) kbElem.style.opacity = "0.5";
     }
 
@@ -239,15 +237,8 @@
                 }
                 currentLen++;
             });
-
-            const dateStr = new Date().toLocaleDateString();
-            const text = `🔠 Letterends Daily (${dateStr}) 🔠\nRound: ${history.length}\nStreak: ${streak}🔥\n\n${gridText}\nhttps://www.letterends.com`;
-            
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Results copied to clipboard!");
-            }).catch(err => {
-                console.error('Could not copy text: ', err);
-            });
+            const text = `🔠 Letterends Daily (${new Date().toLocaleDateString()}) 🔠\nRound: ${history.length}\nStreak: ${streak}🔥\n\n${gridText}\nhttps://www.letterends.com`;
+            navigator.clipboard.writeText(text).then(() => alert("Results copied!")).catch(err => console.error(err));
         };
     }
 
