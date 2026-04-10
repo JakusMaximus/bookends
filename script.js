@@ -71,15 +71,30 @@
 
     function validateCurrentStarter() {
         if (isGameOver || history.length > 1 || !isDictionaryLoaded) return;
+        
         const starter = history[0];
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
         let valid = false;
+        
+        // Check if any letter can be added to the start or end
         for (let c of alphabet) {
             if (dictionary.includes(c + starter) || dictionary.includes(starter + c)) {
-                valid = true; break;
+                valid = true; 
+                break;
             }
         }
-        if (!valid) { history = ["ACE"]; refreshUI(); }
+
+        // If the word is a dead end, pick a "Power Starter" instead
+        if (!valid) {
+            const powerStarters = ["ACE", "ART", "INK", "OIL", "EAR", "AMP", "END", "AIR", "OLD", "ALL", "ICE", "ORE"];
+            const now = new Date();
+            const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+            
+            // Pick a backup word that also changes daily
+            history = [powerStarters[dayOfYear % powerStarters.length]];
+            console.log("Dead-end detected. Rotating to safety word:", history[0]);
+            refreshUI();
+        }
     }
 
     // --- 3. INPUT HANDLERS ---
