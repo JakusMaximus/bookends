@@ -9,7 +9,7 @@ window.DAILY_STARTERS = [
     "CAP", "CAR", "CAT", "CAW", "COB", "COD", "COG", "CON", "COO", "COP", 
     "COT", "COW", "COY", "CRY", "CUB", "CUE", "CUP", "CUT", "DAB", "DAD", 
     "DAM", "DAP", "DAY", "DEN", "DEW", "DID", "DIE", "DIG", "DIM", "DIN", 
-    "DIP", "DOE", "DOG", "DON", "DOT", "DRY", "DUB", "DUE", "DUG", "DUN", 
+    "DIP", "DOE", "PAT", "CAT", "ART", "LIP", "DUB", "DUE", "DUG", "DUN", 
     "DUO", "DYE", "EAR", "EAT", "EBB", "EGG", "EGO", "EKE", "ELK", "ELL", 
     "ELM", "END", "EON", "ERA", "ERE", "ERG", "ERR", "EST", "EVE", "EWE", 
     "EYE", "FAB", "FAD", "FAN", "FAR", "FAT", "FAX", "FED", "FEE", "FEN", 
