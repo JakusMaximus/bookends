@@ -14,7 +14,7 @@ window.DAILY_STARTERS = [
     "TAR", "OWN", "INK", "CON", "HER", "MIN", "DIN", "EST", "EVE", "PEA", 
     "EYE", "HOW", "FAD", "FAN", "HUT", "SEA", "OFT", "RED", "LID", "OLD", 
     "LOG", "FEE", "MAN", "RUT", "SEA", "ODE", "ALL", "BEE", "LAP", "ICE", 
-    "FLY", "FOB", "FOE", "FOG", "FOR", "FOX", "FRY", "FUN", "FUR", "GAD", 
+    "ISH", "HEM", "ORE", "LAW", "TOP", "HUM", "IRE", "LOO", "WEE", "HUT", 
     "GAG", "GAP", "GAS", "GAY", "GEL", "GEM", "GET", "GIG", "GIN", "GNU", 
     "GOB", "GOD", "GOT", "GUM", "GUN", "GUT", "GUY", "GYM", "HAD", "HAG", 
     "HAM", "HAS", "HAT", "HAY", "HEM", "HEN", "HER", "HEY", "HID", "HIP", 
