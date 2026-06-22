@@ -16,7 +16,7 @@ window.DAILY_STARTERS = [
     "LOG", "FEE", "MAN", "RUT", "SEA", "ODE", "ALL", "BEE", "LAP", "ICE", 
     "ISH", "HEM", "ORE", "LAW", "TOP", "HUM", "IRE", "LOO", "WEE", "HUT", 
     "GAG", "GAP", "IRE", "HAT", "COW", "SEE", "ALL", "LEA", "LIP", "OUT", 
-    "RAN", "WEE", "GOT", "HER", "SEE", "SIR", "TON", "ORE", "AIL", "DUE", 
+    "RAN", "WEE", "GOT", "EEL", "SEE", "SIR", "TON", "ORE", "AIL", "DUE", 
     "ITS", "LOO", "COD", "RID", "MIN", "SAT", "NOT", "EAT", "HID", "HIP", 
     "HIS", "HIT", "HOB", "HOG", "HOP", "HOT", "HOW", "HUB", "HUE", "HUG", 
     "HUM", "HUN", "HUT", "ICE", "ICY", "IDE", "ILL", "IMP", "ING", "INK", 
