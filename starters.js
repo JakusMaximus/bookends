@@ -23,7 +23,7 @@ window.DAILY_STARTERS = [
     "CAP", "ION", "LOW", "LIT", "HOT", "ITS", "USE", "ITE", "ROW", "FIR", 
     "MAD", "URN", "SAT", "OUT", "PIN", "TAR", "OWE", "SEE", "JOY", "FIR", 
     "TIN", "ERM", "ACE", "ILL", "TON", "LOP", "BAT", "NOT", "AGE", "LAG", 
-    "LAP", "LAW", "OIL", "LAY", "LEA", "LED", "LEG", "LEI", "LET", "LID", 
+    "LAP", "LAW", "OIL", "ILK", "WAS", "HIT", "LIN", "ROW", "WIN", "LID", 
     "LIE", "LIP", "LIT", "LOB", "LOG", "LOP", "LOT", "LOW", "LOX", "LUG", 
     "LYE", "MAD", "MAG", "MAP", "MAR", "MAT", "MAW", "MAX", "MAY", "MED", 
     "MEN", "MET", "MEW", "MID", "MIG", "MIL", "MIX", "MOB", "MOD", "MOP", 
