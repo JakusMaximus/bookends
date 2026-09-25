@@ -25,7 +25,7 @@ window.DAILY_STARTERS = [
     "TIN", "ERM", "ACE", "ILL", "TON", "LOP", "BAT", "NOT", "AGE", "LAG", 
     "LAP", "LAW", "OIL", "ILK", "WAS", "HIT", "LIN", "ROW", "WIN", "LID", 
     "LIE", "LIP", "LIT", "LOB", "LOG", "LOP", "IRE", "OWE", "BOR", "DUN", 
-    "FEE", "TOO", "SEE", "CON", "RAT", "MIN", "POO", "AXE", "RUE", "TOR", 
+    "FEE", "TOO", "SEE", "CON", "RAT", "MIN", "POO", "AXE", "LEA", "TOR", 
     "MEN", "MET", "MEW", "MID", "MIG", "MIL", "MIX", "MOB", "MOD", "MOP", 
     "MOW", "MUD", "MUG", "MUM", "NAB", "NAG", "NAP", "NAY", "NET", "NEW", 
     "NIB", "NIL", "NIP", "NIT", "NIX", "NOD", "NOR", "NOT", "NOW", "NUB", 
